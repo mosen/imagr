@@ -780,14 +780,13 @@ class MainController(NSObject):
         '''Process the selected workflow'''
         pool = NSAutoreleasePool.alloc().init()
         if self.selectedWorkflow:
-            # count all of the workflow items - are we still using this?
             components = [item for item in self.selectedWorkflow['components']]
             component_count = len(components)
 
             self.should_update_volume_list = False
 
             for i, item in enumerate(self.selectedWorkflow['components']):
-                self.runComponent(item, i)
+                self.runComponent(item, i, component_count)
             if self.first_boot_items:
                 # copy bits for first boot script
                 packages_dir = os.path.join(self.targetVolume.mountpoint, 'usr/local/first-boot/')
