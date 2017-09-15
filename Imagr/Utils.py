@@ -454,7 +454,7 @@ def getReportURL():
         return None
 
 
-def sendReport(status, message):
+def sendReport(status, message, step=0, stepTotal=1, percent=0):
     hardware_info = get_hardware_info()
     SERIAL = hardware_info.get('serial_number', 'UNKNOWN')
 
@@ -464,7 +464,10 @@ def sendReport(status, message):
         data = {
             'status': status,
             'serial': SERIAL,
-            'message': message
+            'message': message,
+            'step': step,
+            'stepTotal': stepTotal,
+            'percent': percent,
         }
         NSLog('Report: %@', data)
         data = urllib.urlencode(data)
