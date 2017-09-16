@@ -113,6 +113,7 @@ class MainController(NSObject):
     cancelledAutorun = False
     authenticatedUsername = None
     authenticatedPassword = None
+    dryRun = True
 
     # For localize script
     keyboard_layout_name = None
@@ -786,14 +787,19 @@ class MainController(NSObject):
             self.should_update_volume_list = False
 
             for i, item in enumerate(self.selectedWorkflow['components']):
-                self.runComponent(item, i, component_count)
+                self.runComponent(item, i+1, component_count)
             if self.first_boot_items:
                 # copy bits for first boot script
                 packages_dir = os.path.join(self.targetVolume.mountpoint, 'usr/local/first-boot/')
                 if not os.path.exists(packages_dir):
-                    os.makedirs(packages_dir)
-                Utils.copyFirstBoot(self.targetVolume.mountpoint,
-                                    self.waitForNetwork, self.firstBootReboot)
+                    if not self.dryRun:
+                        os.makedirs(packages_dir)
+                        Utils.copyFirstBoot(self.targetVolume.mountpoint,
+                                            self.waitForNetwork, self.firstBootReboot)
+                    else:
+                        NSLog("Would have created directory: %@", packages_dir)
+                        NSLog("Would have copied first boot pkg")
+
 
         self.performSelectorOnMainThread_withObject_waitUntilDone_(
             self.processWorkflowOnThreadComplete, None, YES)
@@ -829,14 +835,14 @@ class MainController(NSObject):
                 self.reloadVolumes()
             self.openEndWorkflowPanel()
 
-    def runComponent(self, item, step=0):
+    def runComponent(self, item, step=0, stepCount=1):
         '''Run the selected workflow component'''
         # No point carrying on if something is broken
         if not self.errorMessage:
             self.counter = self.counter + 1.0
             # Restore image
             if item.get('type') == 'image' and item.get('url'):
-                Utils.sendReport('in_progress', 'Restoring DMG: %s' % item.get('url'), step)
+                Utils.sendReport('in_progress', 'Restoring DMG: %s' % item.get('url'), step, stepCount)
                 self.Clone(
                     item.get('url'),
                     self.targetVolume,
@@ -844,16 +850,16 @@ class MainController(NSObject):
                 )
             # Download and install package
             elif item.get('type') == 'package' and not item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Downloading and installing package(s): %s' % item.get('url'), step)
+                Utils.sendReport('in_progress', 'Downloading and installing package(s): %s' % item.get('url'), step, stepCount)
                 self.downloadAndInstallPackages(item)
             # Download and copy package
             elif item.get('type') == 'package' and item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Downloading and installing first boot package(s): %s' % item.get('url'), step)
+                Utils.sendReport('in_progress', 'Downloading and installing first boot package(s): %s' % item.get('url'), step, stepCount)
                 self.downloadAndCopyPackage(item, self.counter)
                 self.first_boot_items = True
             # Copy first boot script
             elif item.get('type') == 'script' and item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Copying first boot script %s' % str(self.counter), step)
+                Utils.sendReport('in_progress', 'Copying first boot script %s' % str(self.counter), step, stepCount)
                 if item.get('url'):
                     if item.get('additional_headers'):
                         (data, error) = Utils.downloadFile(item.get('url'), item.get('additional_headers'))
@@ -866,7 +872,7 @@ class MainController(NSObject):
                 self.first_boot_items = True
             # Run script
             elif item.get('type') == 'script' and not item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Running script %s' % str(self.counter), step)
+                Utils.sendReport('in_progress', 'Running script %s' % str(self.counter), step, stepCount)
                 if item.get('url'):
                     if item.get('additional_headers'):
                         (data, error) = Utils.downloadFile(item.get('url'), item.get('additional_headers'))
@@ -886,32 +892,32 @@ class MainController(NSObject):
                     NSLog("No target specified, reverting to workflow selection screen.")
 
             elif item.get('type') == 'included_workflow':
-                Utils.sendReport('in_progress', 'Running included workflow.', step)
+                Utils.sendReport('in_progress', 'Running included workflow.', step, stepCount)
                 self.runIncludedWorkflow(item)
 
             # Format a volume
             elif item.get('type') == 'eraseVolume':
-                Utils.sendReport('in_progress', 'Erasing volume with name %s' % item.get('name', 'Macintosh HD'), step)
+                Utils.sendReport('in_progress', 'Erasing volume with name %s' % item.get('name', 'Macintosh HD'), step, stepCount)
                 self.eraseTargetVolume(item.get('name', 'Macintosh HD'), item.get('format', 'Journaled HFS+'))
             elif item.get('type') == 'computer_name':
                 if self.computerName:
-                    Utils.sendReport('in_progress', 'Setting computer name to %s' % self.computerName, step)
+                    Utils.sendReport('in_progress', 'Setting computer name to %s' % self.computerName, step, stepCount)
                     script_dir = os.path.dirname(os.path.realpath(__file__))
                     with open(os.path.join(script_dir, 'set_computer_name.sh')) as script:
                         script=script.read()
                     self.copyFirstBootScript(script, self.counter)
                     self.first_boot_items = True
             elif item.get('type') == 'localize':
-                Utils.sendReport('in_progress', 'Localizing Mac', step)
+                Utils.sendReport('in_progress', 'Localizing Mac', step, stepCount)
                 self.copyLocalize(item)
                 self.first_boot_items = True
 
             # Workflow specific restart action
             elif item.get('type') == 'restart_action':
-                Utils.sendReport('in_progress', 'Setting restart_action to %s' % item.get('action'), step)
+                Utils.sendReport('in_progress', 'Setting restart_action to %s' % item.get('action'), step, stepCount)
                 self.restartAction = item.get('action')
             else:
-                Utils.sendReport('error', 'Found an unknown workflow item: %s.' % item.get('type'), step)
+                Utils.sendReport('error', 'Found an unknown workflow item: %s.' % item.get('type'), step, stepCount)
                 self.errorMessage = "Found an unknown workflow item."
 
     def getIncludedWorkflow(self, item):
@@ -959,8 +965,9 @@ class MainController(NSObject):
                     break
         # run the workflow
         if target_workflow:
+            included_workflow_stepcount = len(target_workflow['components'])
             for i, component in enumerate(target_workflow['components']):
-                self.runComponent(component, i)
+                self.runComponent(component, i+1, included_workflow_stepcount)
         else:
             Utils.sendReport('error', 'Could not find included workflow %s' % included_workflow)
             self.errorMessage = 'Could not find included workflow %s' % included_workflow
@@ -1229,6 +1236,10 @@ class MainController(NSObject):
         return pkg_list, None
 
     def copyFirstBootScript(self, script, counter):
+        if self.dryRun:
+            NSLog("Would have copied first boot script")
+            return True
+        
         if not self.targetVolume.Mounted():
             self.targetVolume.Mount()
 
