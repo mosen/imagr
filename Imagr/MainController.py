@@ -914,6 +914,10 @@ class MainController(NSObject):
             elif item.get('type') == 'eraseVolume':
                 Utils.sendReport('in_progress', 'Erasing volume with name %s' % item.get('name', 'Macintosh HD'))
                 self.eraseTargetVolume(item.get('name', 'Macintosh HD'), item.get('format', 'Journaled HFS+'))
+            # Format a volume with existing format
+            elif item.get('type') == 'reformat':
+                Utils.sendReport('in_progress', 'Reformatting volume with original name')
+                self.reformatTargetVolume()
             elif item.get('type') == 'computer_name':
                 if self.computerName:
                     Utils.sendReport('in_progress', 'Setting computer name to %s' % self.computerName)
@@ -1771,6 +1775,20 @@ class MainController(NSObject):
         if name != 'Macintosh HD':
             # If the volume was renamed, or isn't named 'Macintosh HD', then we should recheck the volume list
             self.should_update_volume_list = True
+
+    def reformatTargetVolume(self):
+        """
+        Reformats the target volume.
+        The format and name are retained, so no arguments are required.
+        """
+        cmd = ['/usr/sbin/diskutil', 'reformat', self.targetVolume.mountpoint]
+        NSLog("%@", cmd)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (eraseOut, eraseErr) = proc.communicate()
+        if eraseErr:
+            NSLog("Error occured when reformatting volume: %@", eraseErr)
+            self.errorMessage = eraseErr
+        NSLog("%@", eraseOut)
 
     def copyLocalize(self, item):
         if 'keyboard_layout_name' in item:
