@@ -29,6 +29,7 @@ import socket
 import urllib2
 import datetime
 import json
+import random
 import macdisk
 import objc
 
@@ -714,6 +715,15 @@ def downloadChunks(url, file, progress_method=None, additional_headers=None, res
                                                             url)
         return False, error
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+# Source Path, Destination Path (relative to target mountpoint), Owner, Group, Mode
+FIRST_BOOT_INSTALL = [
+    (os.path.join(script_dir, "com.grahamgilbert.imagr-first-boot-pkg.plist"), "/Library/LaunchDaemons/com.grahamgilbert.imagr-first-boot-pkg.plist", 0, 0, 0644),
+    (os.path.join(script_dir, "se.gu.it.LoginLog.plist"), "/Library/LaunchAgents/se.gu.it.LoginLog.plist", 0, 0, 0644),
+    (os.path.join(script_dir, "se.gu.it.LoginLog.login.plist"), "/Library/LaunchAgents/se.gu.it.LoginLog.login.plist", 0, 0, 0644),
+    (os.path.join(script_dir, "LoginLog.app"), "/Library/PrivilegedHelperTools/LoginLog.app", 0, 0, 0755),
+    (os.path.join(script_dir, "first-boot"), "/usr/local/first-boot/first-boot", 0, 0, 0755),
+]
 
 def copyFirstBoot(root, network=True, reboot=True):
     NSLog("Copying first boot pkg install tools")
@@ -729,64 +739,26 @@ def copyFirstBoot(root, network=True, reboot=True):
     plistlib.writePlist(config_plist, os.path.join(root, firstboot_dir,
                                                    'config.plist'))
 
-    # Copy the LaunchDaemon, LaunchAgent and Log.app to the right places
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    launchDaemon_dir = os.path.join(root, 'Library', 'LaunchDaemons')
-    if not os.path.exists(launchDaemon_dir):
-        os.makedirs(launchDaemon_dir)
+    for first_boot_item in FIRST_BOOT_INSTALL:
+        sourceFile, destFile, owner, group, mode = first_boot_item
+        
+        if not os.path.exists(os.path.dirname(destFile)):
+            os.makedirs(os.path.dirname(destFile))
 
-    if not os.path.exists(os.path.join(launchDaemon_dir,
-    'com.grahamgilbert.imagr-first-boot-pkg.plist')):
-        shutil.copy(os.path.join(script_dir,
-        'com.grahamgilbert.imagr-first-boot-pkg.plist'), os.path.join(launchDaemon_dir,
-        'com.grahamgilbert.imagr-first-boot-pkg.plist'))
-        # Set the permisisons
-        os.chmod(os.path.join(launchDaemon_dir,
-        'com.grahamgilbert.imagr-first-boot-pkg.plist'), 0644)
-        os.chown(os.path.join(launchDaemon_dir,
-        'com.grahamgilbert.imagr-first-boot-pkg.plist'), 0, 0)
+        if os.path.isdir(sourceFile): # Bundle
+            shutil.copytree(sourceFile, destFile)
+        else:
+            shutil.copy(sourceFile, destFile)
+        os.chmod(destFile, mode)
+        os.chown(destFile, owner, group)
 
-    launchAgent_dir = os.path.join(root, 'Library', 'LaunchAgents')
-    if not os.path.exists(launchAgent_dir):
-        os.makedirs(launchAgent_dir)
-
-    if not os.path.exists(os.path.join(launchAgent_dir, 'se.gu.it.LoginLog.plist')):
-        shutil.copy(os.path.join(script_dir, 'se.gu.it.LoginLog.plist'),
-        os.path.join(launchAgent_dir, 'se.gu.it.LoginLog.plist'))
-        # Set the permisisons
-        os.chmod(os.path.join(launchAgent_dir, 'se.gu.it.LoginLog.plist'), 0644)
-        os.chown(os.path.join(launchAgent_dir, 'se.gu.it.LoginLog.plist'), 0, 0)
-
-    if not os.path.exists(os.path.join(launchAgent_dir, 'se.gu.it.LoginLog.login.plist')):
-        shutil.copy(os.path.join(script_dir, 'se.gu.it.LoginLog.login.plist'),
-        os.path.join(launchAgent_dir, 'se.gu.it.LoginLog.login.plist'))
-        # Set the permisisons
-        os.chmod(os.path.join(launchAgent_dir, 'se.gu.it.LoginLog.login.plist'), 0644)
-        os.chown(os.path.join(launchAgent_dir, 'se.gu.it.LoginLog.login.plist'), 0, 0)
-
-    helperTools_dir = os.path.join(root, 'Library', 'PrivilegedHelperTools')
-    if not os.path.exists(helperTools_dir):
-        os.makedirs(helperTools_dir)
-
-    if not os.path.exists(os.path.join(helperTools_dir, 'LoginLog.app')):
-        shutil.copytree(os.path.join(script_dir, 'LoginLog.app'),
-        os.path.join(helperTools_dir, 'LoginLog.app'))
-        # Set the permisisons
-        for root_dir, dirs, files in os.walk(os.path.join(helperTools_dir, 'LoginLog.app')):
-          for momo in dirs:
-            os.chown(os.path.join(root_dir, momo), 0, 0)
-            os.chmod(os.path.join(root_dir, momo), 0755)
-          for momo in files:
-            os.chown(os.path.join(root_dir, momo), 0, 0)
-            os.chmod(os.path.join(root_dir, momo), 0755)
-
-    if not os.path.exists(os.path.join(root, firstboot_dir, 'first-boot')):
-        # copy the script
-        shutil.copy(os.path.join(script_dir, 'first-boot'), os.path.join(root, firstboot_dir, 'first-boot'))
-        # Set the permisisons
-        os.chmod(os.path.join(root, firstboot_dir, 'first-boot'), 0755)
-        os.chown(os.path.join(root, firstboot_dir, 'first-boot'), 0, 0)
-
+    for root_dir, dirs, files in os.walk(os.path.join(root, "/Library/PrivilegedHelperTools/LoginLog.app")):
+      for momo in dirs:
+        os.chown(os.path.join(root_dir, momo), 0, 0)
+        os.chmod(os.path.join(root_dir, momo), 0755)
+      for momo in files:
+        os.chown(os.path.join(root_dir, momo), 0, 0)
+        os.chmod(os.path.join(root_dir, momo), 0755)
 
 def is_apfs(source):
     """
@@ -849,3 +821,199 @@ def mountedVolumes():
         NSLog(u"Couldn't parse output from %@: %@", u" ".join(cmd), unicode(e))
 
     return volumes
+
+
+def downloadDMG(url, target, progress_callback=None):
+    if os.path.basename(url).endswith('.dmg'):
+        # Download it
+        dmgname = os.path.basename(url)
+        failsleft = 3
+        dmgpath = os.path.join(target, dmgname)
+        NSLog(u"DMG Path %@", str(dmgpath))
+        while not os.path.isfile(dmgpath):
+            (dmg, error) = downloadChunks(url, dmgpath, resume=True,
+                                                progress_method=progress_callback)
+            if error:
+                failsleft -= 1
+                NSLog(u"DMG failed to download - Retries left: %@", str(failsleft))
+            if failsleft == 0:
+                NSLog(u"Too many download failures. Exiting...")
+                break
+        if failsleft == 0:
+            return False
+    else:
+        self.errorMessage = "%s doesn't end with '.dmg'" % url
+        return False
+
+    return dmg
+
+
+def create_ramdisk(size, label='ramdisk', label_random_suffix=True, reserved_bytes=681574400):
+    """Create a RAM disk.
+
+    Args:
+        size (int): The size of the RAM disk.
+        label (str): The volume name of the ram disk.
+        label_random_suffix (bool): Add a random integer to the end of the label to ensure subsequent ramdisks do not
+            use the same mountpoint.
+        reserved_bytes (int): Headroom available as RAM to the operating system. If the size of the RAM disk exceeds
+            the (total RAM - reserved_bytes) then this will fail.
+
+    Raises:
+        TypeError
+    """
+    # Note 1:
+    # Assume netinstall uses at least 650MB of RAM. If we don't require
+    # enough RAM, gurl will timeout or cause RecoveryOS to crash.
+
+    # Note 2:
+    # Formatting RAM Disk requires around 5% of the total amount of
+    # bytes. Add 10% to compensate for the padding we will need.
+
+    output = subprocess.check_output(["/usr/sbin/sysctl", "-e", "hw.memsize"])
+    memsize = int(output.split("=", 1)[1])
+    available_memsize = memsize - reserved_bytes
+
+    if size > available_memsize:
+        raise TypeError("Insufficient RAM available to create RAM disk, need: %d, have: %d" % (
+            size + reserved_bytes, memsize))
+
+    if size < 1000000:
+        raise TypeError("A filesystem this small cannot be created")
+
+    sectors = size / 512
+    ram_device = "ram://%s" % str(sectors)
+
+    attach_cmd = ["/usr/bin/hdiutil", "attach", "-nomount", ram_device]
+    disk_dev = subprocess.check_output(attach_cmd).strip(" \n\t")
+
+    if label_random_suffix:
+        label = label + str(random.randint(1000000, 10000000))
+
+    try:
+        erase_cmd = ["/usr/sbin/diskutil", "erasedisk", "HFS+", label, disk_dev]
+        subprocess.check_call(erase_cmd)
+    except:
+        detach_cmd = ["/usr/bin/hdiutil", "detach", disk_dev]
+        subprocess.check_call(detach_cmd)
+
+    # TODO: Sleep to allow init the volume?
+
+    return disk_dev, label
+
+
+def is_source_target_compatible(source, target):
+    is_apfs_image = is_apfs(source)
+    if target._attributes['FilesystemType'] == 'hfs' and is_apfs_image:
+        error = "%s is formatted as HFS and you are trying to restore an APFS disk image" % str(
+            target.mountpoint)
+        return False, error
+    elif target._attributes['FilesystemType'] == 'apfs' and not is_apfs_image:
+        error = "%s is formatted as APFS and you are trying to restore an HFS disk image" % str(
+            target.mountpoint)
+        return False, error
+
+    return True, ""
+
+def RAMDisk(source, targetVolume, imaging=False, progress_callback=None):
+    if imaging is True:
+        is_apfs_image = is_apfs(source)
+        if targetVolume._attributes['FilesystemType'] == 'hfs' and is_apfs_image:
+            error = "%s is formatted as HFS and you are trying to restore an APFS disk image" % str(
+                targetVolume.mountpoint)
+            return False, False, error
+        elif targetVolume._attributes['FilesystemType'] == 'apfs' and not is_apfs_image:
+            error = "%s is formatted as APFS and you are trying to restore an HFS disk image" % str(
+                targetVolume.mountpoint)
+            return False, False, error
+    sysctlcommand = ["/usr/sbin/sysctl", "hw.memsize"]
+    sysctl = subprocess.Popen(sysctlcommand,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+    memsizetuple = sysctl.communicate()
+    # sysctl returns crappy things from stdout.
+    # Ex: ('hw.memsize: 1111111\n', '')
+    memsize = int(
+        memsizetuple[0].split('\n')[0].replace('hw.memsize: ', ''))
+    # logger.info(u"Total Memory is %s" % str(memsize))
+    # Assume netinstall uses at least 650MB of RAM. If we don't require
+    # enough RAM, gurl will timeout or cause RecoveryOS to crash.
+    availablemem = memsize - 681574400
+    # logger.info(u"Available Memory for DMG is %s" % str(availablemem))
+    if imaging is True:
+        filesize = getDMGSize(source)[0]
+    else:
+        filesize = getDMGSize(source.get('url'))[0]
+    # logger.info(u"Required Memory for DMG is %s" % str(filesize))
+    # Formatting RAM Disk requires around 5% of the total amount of
+    # bytes. Add 10% to compensate for the padding we will need.
+    paddedfilesize = int(filesize) * 1.10
+    NSLog(u"Padded Memory for DMG is %@", str(paddedfilesize))
+    if filesize is False:
+        NSLog(u"Error when calculating source size. Using original method "
+              "instead of gurl...")
+        return False, True
+    elif imaging is True and 9000000000 > memsize:
+        NSLog(u"Feature requires more than 9GB of RAM. Using asr "
+              "instead of gurl...")
+        return False, True
+    elif int(paddedfilesize) > availablemem:
+        NSLog(u"Available Memory is not sufficient for source size. "
+              "Using original method instead of gurl...")
+        return False, True
+    elif 8000000000 > memsize:
+        NSLog(u"Feature requires at least 8GB of RAM. Using original "
+              "method instead of gurl...")
+        return False, True
+    else:
+        sectors = int(paddedfilesize) / 512
+        ramstring = "ram://%s" % str(sectors)
+        NSLog(u"Amount of Sectors for RAM Disk is %@", str(sectors))
+        ramattachcommand = ["/usr/bin/hdiutil", "attach", "-nomount",
+                            ramstring]
+        ramattach = subprocess.Popen(ramattachcommand,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+        devdisk = ramattach.communicate()
+        # hdiutil returns some really crappy things from stdout
+        # Ex: ('/dev/disk20     \t         \t\n', '')
+        devdiskstr = devdisk[0].split(' ')[0]
+        randomnum = random.randint(1000000, 10000000)
+        ramdiskvolname = "ramdisk" + str(randomnum)
+        NSLog(u"RAM Disk mountpoint is %@", str(ramdiskvolname))
+        NSLog(u"Formatting RAM Disk as HFS at %@", devdiskstr)
+        ramformatcommand = ["/sbin/newfs_hfs", "-v",
+                            ramdiskvolname, devdiskstr]
+        ramformat = subprocess.Popen(ramformatcommand,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+        NSLog(u"Mounting HFS RAM Disk %@", devdiskstr)
+        rammountcommand = ["/usr/sbin/diskutil", "erasedisk",
+                           'HFS+', ramdiskvolname, devdiskstr]
+        rammount = subprocess.Popen(rammountcommand,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        # Wait for the disk to completely initialize
+        targetpath = os.path.join('/Volumes', ramdiskvolname)
+        while not os.path.isdir(targetpath):
+            NSLog(u"Sleeping 1 second to allow full disk initialization.")
+            time.sleep(1)
+        if imaging is True:
+            dmgsource = source
+        else:
+            dmgsource = source.get('url')
+        NSLog(u"Downloading DMG file from %@", str(dmgsource))
+        download_string = 'Downloading {}...'.format(str(dmgsource))
+
+        if progress_callback is not None:
+            progress_callback(download_string, -1, '')
+        sourceram = downloadDMG(dmgsource, targetpath, progress_callback)
+        if sourceram is False:
+            NSLog(u"Detaching RAM Disk due to failure.")
+            detachcommand = ["/usr/bin/hdiutil", "detach", devdiskstr]
+            detach = subprocess.Popen(detachcommand,
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
+            error = "DMG Failed to download via RAMDisk."
+            return False, False, error
+        return sourceram, devdiskstr

@@ -18,6 +18,8 @@ class TestServer(SocketServer.TCPServer):
 
 
 class TargetVolumeFixture(object):
+    """TargetVolumeFixture creates a DMG which will be the target of disk operations on the machine running the Imagr test suite.
+    It is still recommended to test in a VM."""
 
     def make_target(self, size_spec="50M", label=__name__):
         self.output_temp = tempfile.mktemp(prefix="imagr", suffix="dmg")
@@ -33,6 +35,7 @@ class TargetVolumeFixture(object):
                 self.target = macdisk.Disk(match.group(1))
 
     def serve_http(self):
+        """serve a temporary http web service intended to replicate a remote imagr source"""
         self.handler = SimpleHTTPServer.SimpleHTTPRequestHandler
         self.httpd = TestServer(("", HTTP_PORT), self.handler)
 
