@@ -11,6 +11,16 @@
 		100FA3EC1D51DC6C000F1C1C /* powermgr.py in Resources */ = {isa = PBXBuildFile; fileRef = 100FA3EB1D51DC6C000F1C1C /* powermgr.py */; };
 		10DA31C31D92963A00969112 /* se.gu.it.LoginLog.login.plist in Resources */ = {isa = PBXBuildFile; fileRef = 10DA31C21D92963A00969112 /* se.gu.it.LoginLog.login.plist */; };
 		347ECFA92096C77B00CC0C34 /* tasks.py in Resources */ = {isa = PBXBuildFile; fileRef = 347ECFA82096C77B00CC0C34 /* tasks.py */; };
+		34D1DFDD2096D41E009BAAC9 /* test_included_workflow.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD32096D41D009BAAC9 /* test_included_workflow.py */; };
+		34D1DFDE2096D41E009BAAC9 /* remote_script.sh in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD42096D41D009BAAC9 /* remote_script.sh */; };
+		34D1DFDF2096D41E009BAAC9 /* test_script.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD52096D41D009BAAC9 /* test_script.py */; };
+		34D1DFE02096D41E009BAAC9 /* test_image.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD62096D41D009BAAC9 /* test_image.py */; };
+		34D1DFE12096D41E009BAAC9 /* test_partition.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD72096D41D009BAAC9 /* test_partition.py */; };
+		34D1DFE22096D41E009BAAC9 /* fixtures.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD82096D41D009BAAC9 /* fixtures.py */; };
+		34D1DFE32096D41E009BAAC9 /* test_erasevolume.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD92096D41E009BAAC9 /* test_erasevolume.py */; };
+		34D1DFE42096D41E009BAAC9 /* test_install_package.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFDA2096D41E009BAAC9 /* test_install_package.py */; };
+		34D1DFE52096D41E009BAAC9 /* test_ramdisk.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFDB2096D41E009BAAC9 /* test_ramdisk.py */; };
+		34D1DFE62096D41E009BAAC9 /* test_startosinstall.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFDC2096D41E009BAAC9 /* test_startosinstall.py */; };
 		C06979C21AE83F3500914535 /* gurl.py in Resources */ = {isa = PBXBuildFile; fileRef = C06979C11AE83F3500914535 /* gurl.py */; };
 		C0D0AB191F8C36FC001B1CF3 /* osinstall.py in Resources */ = {isa = PBXBuildFile; fileRef = C0D0AB181F8C36FC001B1CF3 /* osinstall.py */; };
 		C0D0AB1D1F8C3D03001B1CF3 /* ptyexec in Resources */ = {isa = PBXBuildFile; fileRef = C0D0AB1C1F8C3D03001B1CF3 /* ptyexec */; };
@@ -70,6 +80,16 @@
 		100FA3EB1D51DC6C000F1C1C /* powermgr.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = powermgr.py; sourceTree = "<group>"; };
 		10DA31C21D92963A00969112 /* se.gu.it.LoginLog.login.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = se.gu.it.LoginLog.login.plist; sourceTree = "<group>"; };
 		347ECFA82096C77B00CC0C34 /* tasks.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = tasks.py; sourceTree = "<group>"; };
+		34D1DFD32096D41D009BAAC9 /* test_included_workflow.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_included_workflow.py; sourceTree = "<group>"; };
+		34D1DFD42096D41D009BAAC9 /* remote_script.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = remote_script.sh; sourceTree = "<group>"; };
+		34D1DFD52096D41D009BAAC9 /* test_script.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_script.py; sourceTree = "<group>"; };
+		34D1DFD62096D41D009BAAC9 /* test_image.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_image.py; sourceTree = "<group>"; };
+		34D1DFD72096D41D009BAAC9 /* test_partition.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_partition.py; sourceTree = "<group>"; };
+		34D1DFD82096D41D009BAAC9 /* fixtures.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = fixtures.py; sourceTree = "<group>"; };
+		34D1DFD92096D41E009BAAC9 /* test_erasevolume.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_erasevolume.py; sourceTree = "<group>"; };
+		34D1DFDA2096D41E009BAAC9 /* test_install_package.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_install_package.py; sourceTree = "<group>"; };
+		34D1DFDB2096D41E009BAAC9 /* test_ramdisk.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_ramdisk.py; sourceTree = "<group>"; };
+		34D1DFDC2096D41E009BAAC9 /* test_startosinstall.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_startosinstall.py; sourceTree = "<group>"; };
 		C06979C11AE83F3500914535 /* gurl.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = gurl.py; sourceTree = "<group>"; };
 		C0D0AB181F8C36FC001B1CF3 /* osinstall.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = osinstall.py; sourceTree = "<group>"; };
 		C0D0AB1C1F8C3D03001B1CF3 /* ptyexec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = ptyexec; sourceTree = "<group>"; };
@@ -141,6 +161,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		34D1DFD02096D3FF009BAAC9 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				34D1DFD82096D41D009BAAC9 /* fixtures.py */,
+				34D1DFD42096D41D009BAAC9 /* remote_script.sh */,
+				34D1DFD92096D41E009BAAC9 /* test_erasevolume.py */,
+				34D1DFD62096D41D009BAAC9 /* test_image.py */,
+				34D1DFD32096D41D009BAAC9 /* test_included_workflow.py */,
+				34D1DFDA2096D41E009BAAC9 /* test_install_package.py */,
+				34D1DFD72096D41D009BAAC9 /* test_partition.py */,
+				34D1DFDB2096D41E009BAAC9 /* test_ramdisk.py */,
+				34D1DFD52096D41D009BAAC9 /* test_script.py */,
+				34D1DFDC2096D41E009BAAC9 /* test_startosinstall.py */,
+			);
+			path = tests;
+			sourceTree = SOURCE_ROOT;
+		};
 		FC98DA1E1AD6B2DC00F90405 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -212,6 +249,7 @@
 		FCEA80B51AD0101100DBA039 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				34D1DFD02096D3FF009BAAC9 /* tests */,
 				050D9F811CE5FF1000250591 /* LLBorderlessWindow.h */,
 				050D9F821CE5FF1000250591 /* LLBorderlessWindow.m */,
 				FCEDFD951AF289E900743302 /* imagr_icon.png */,
@@ -336,9 +374,12 @@
 				FC98DA251AD6B2DC00F90405 /* LoginLog.app in Resources */,
 				FCEA80F51AD018E500DBA039 /* certs_test.py in Resources */,
 				FCEA80FA1AD018E500DBA039 /* experiments.py in Resources */,
+				34D1DFE52096D41E009BAAC9 /* test_ramdisk.py in Resources */,
 				FCEA80CE1AD0108B00DBA039 /* NetBootVolume.icns in Resources */,
 				FCEA80BB1AD0101100DBA039 /* Credits.rtf in Resources */,
+				34D1DFDF2096D41E009BAAC9 /* test_script.py in Resources */,
 				FCEA81031AD018E500DBA039 /* profiles_test.py in Resources */,
+				34D1DFE32096D41E009BAAC9 /* test_erasevolume.py in Resources */,
 				FCEA80F41AD018E500DBA039 /* certs.py in Resources */,
 				FCEA81071AD018E500DBA039 /* timer_test.py in Resources */,
 				FCEA80FF1AD018E500DBA039 /* gmacpyutil_test.py in Resources */,
@@ -351,8 +392,12 @@
 				FCEA81051AD018E500DBA039 /* systemconfig_test.py in Resources */,
 				FCEA80D01AD010D100DBA039 /* MainController.py in Resources */,
 				FCEA80EF1AD018E500DBA039 /* __init__.py in Resources */,
+				34D1DFE02096D41E009BAAC9 /* test_image.py in Resources */,
 				FC98DA261AD6B2DC00F90405 /* se.gu.it.LoginLog.plist in Resources */,
+				34D1DFE22096D41E009BAAC9 /* fixtures.py in Resources */,
 				FCEA80D21AD0110A00DBA039 /* FoundationPlist.py in Resources */,
+				34D1DFDE2096D41E009BAAC9 /* remote_script.sh in Resources */,
+				34D1DFDD2096D41E009BAAC9 /* test_included_workflow.py in Resources */,
 				FCEA81081AD018E500DBA039 /* wifi_network_order.py in Resources */,
 				FCEA80C21AD0101100DBA039 /* AppDelegate.py in Resources */,
 				FCEA81021AD018E500DBA039 /* profiles.py in Resources */,
@@ -367,6 +412,7 @@
 				FCEA80FD1AD018E500DBA039 /* getauth_test.py in Resources */,
 				FCEA80F21AD018E500DBA039 /* applescript.py in Resources */,
 				FCEA80F11AD018E500DBA039 /* airport_test.py in Resources */,
+				34D1DFE62096D41E009BAAC9 /* test_startosinstall.py in Resources */,
 				347ECFA92096C77B00CC0C34 /* tasks.py in Resources */,
 				10DA31C31D92963A00969112 /* se.gu.it.LoginLog.login.plist in Resources */,
 				FCEA80F01AD018E500DBA039 /* airport.py in Resources */,
@@ -374,12 +420,14 @@
 				FCEA80FE1AD018E500DBA039 /* gmacpyutil.py in Resources */,
 				FC21F1741C6235DA0039D923 /* localize.sh in Resources */,
 				FCEA80C51AD0101100DBA039 /* MainMenu.xib in Resources */,
+				34D1DFE42096D41E009BAAC9 /* test_install_package.py in Resources */,
 				FCEA810B1AD02C9A00DBA039 /* Utils.py in Resources */,
 				FCEA80F71AD018E500DBA039 /* defaults.py in Resources */,
 				C0D0AB1D1F8C3D03001B1CF3 /* ptyexec in Resources */,
 				FCEA80F91AD018E500DBA039 /* ds_test.py in Resources */,
 				100FA3EC1D51DC6C000F1C1C /* powermgr.py in Resources */,
 				FCEA80FC1AD018E500DBA039 /* getauth.py in Resources */,
+				34D1DFE12096D41E009BAAC9 /* test_partition.py in Resources */,
 				FCF6B3101AD1D73E00311D3A /* package.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

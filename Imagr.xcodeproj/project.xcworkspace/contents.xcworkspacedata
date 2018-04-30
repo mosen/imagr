@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:Imagr.xcodeproj">
+      location = "group:../Imagr/MainControllerDOEmerge.py">
+   </FileRef>
+   <FileRef
+      location = "self:">
    </FileRef>
 </Workspace>
