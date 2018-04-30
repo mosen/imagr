@@ -119,6 +119,8 @@ class ImagrTask(NSObject):
                 task = FirstBootPackageTask.alloc().initWithItem_target_(item, target)
             else:
                 task = InstallPackageTask.alloc().initWithItem_target_(item, target)
+        elif t == 'reformat':
+            task = ReformatTask.alloc().initWithItem_target_(item, target)
         elif t == 'script':
             if item.get('first_boot', True):
                 task = FirstBootScriptTask.alloc().initWithItem_target_(item, target)
@@ -773,4 +775,20 @@ class ImageTask(ImagrTask):
                 subprocess.check_call(detachcommand)
             return True
 
-
+class ReformatTask(ImagrTask):
+    """Imagr Task: Reformat
+        
+    Reformats the target volume.
+    The format and name are retained, so no arguments are required.
+    """
+    
+    def run(self, dry=False):
+        cmd = ['/usr/sbin/diskutil', 'reformat', self.target.mountpoint]
+        NSLog("%@", cmd)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (eraseOut, eraseErr) = proc.communicate()
+        if eraseErr:
+        NSLog("Error occured when reformatting volume: %@", eraseErr)
+        self.errorMessage = eraseErr
+            NSLog("%@", eraseOut)
+        return True
