@@ -15,19 +15,13 @@ from Foundation import *
 from AppKit import *
 from Cocoa import *
 from Quartz.CoreGraphics import *
-import random
+
 import subprocess
-import sys
-import macdisk
-import urllib2
 import Utils
 import PyObjCTools
-import tempfile
-import shutil
 import Quartz
-import time
-import powermgr
-import osinstall
+from tasks import ImagrTask
+
 
 class MainController(NSObject):
 
@@ -233,13 +227,13 @@ class MainController(NSObject):
     def registerForWorkspaceNotifications(self):
         nc = NSWorkspace.sharedWorkspace().notificationCenter()
         nc.addObserver_selector_name_object_(
-            self, self.wsNotificationReceived, NSWorkspaceDidMountNotification, None)
+            self, self.didReceiveWorkspaceNotification, NSWorkspaceDidMountNotification, None)
         nc.addObserver_selector_name_object_(
-            self, self.wsNotificationReceived, NSWorkspaceDidUnmountNotification, None)
+            self, self.didReceiveWorkspaceNotification, NSWorkspaceDidUnmountNotification, None)
         nc.addObserver_selector_name_object_(
-            self, self.wsNotificationReceived, NSWorkspaceDidRenameVolumeNotification, None)
+            self, self.didReceiveWorkspaceNotification, NSWorkspaceDidRenameVolumeNotification, None)
 
-    def wsNotificationReceived(self, notification):
+    def didReceiveWorkspaceNotification(self, notification):
         if self.workflow_is_running:
             self.should_update_volume_list = True
             return
@@ -259,10 +253,16 @@ class MainController(NSObject):
     def validTargetVolumes(self):
         volume_list = []
         for volume in self.volumes:
-            if volume.mountpoint != '/':
-                if volume.mountpoint.startswith("/Volumes/"):
-                    if volume.writable:
-                        volume_list.append(volume.mountpoint)
+            if volume.mountpoint == '/':
+                continue
+            
+            if not volume.mountpoint.startswith("/Volumes/"):
+                continue
+            
+            if not volume.writable:
+                continue
+
+            volume_list.append(volume.mountpoint)
         return volume_list
 
     def reloadVolumes(self):
@@ -304,19 +304,19 @@ class MainController(NSObject):
         self.imagingProgressDetail.setFrameSize_(NSSize(431, 17))
 
     def showAuthenticationPanel(self):
-        '''Show the authentication panel'''
+        """Show the authentication panel"""
         NSApp.beginSheet_modalForWindow_modalDelegate_didEndSelector_contextInfo_(
             self.authenticationPanel, self.mainWindow, self, None, None)
 
     @objc.IBAction
     def cancelAuthenticationPanel_(self, sender):
-        '''Called when user clicks 'Quit' in the authentication panel'''
+        """Called when user clicks 'Quit' in the authentication panel"""
         NSApp.endSheet_(self.authenticationPanel)
         NSApp.terminate_(self)
 
     @objc.IBAction
     def endAuthenticationPanel_(self, sender):
-        '''Called when user clicks 'Continue' in the authentication panel'''
+        """Called when user clicks 'Continue' in the authentication panel"""
         # store the username and password
         self.authenticatedUsername = self.authenticationPanelUsernameField.stringValue()
         self.authenticatedPassword = self.authenticationPanelPasswordField.stringValue()
@@ -606,30 +606,25 @@ class MainController(NSObject):
             self.workflowDescription.setTextColor_(NSColor.disabledControlTextColor())
 
     def disableWorkflowViewControls(self):
-        self.reloadWorkflowsButton.setEnabled_(False)
-        self.reloadWorkflowsMenuItem.setEnabled_(False)
-        self.cancelAndRestartButton.setEnabled_(False)
-        self.chooseWorkflowLabel.setEnabled_(False)
-        self.chooseTargetDropDown.setEnabled_(False)
-        self.chooseWorkflowDropDown.setEnabled_(False)
-        self.enableWorkflowDescriptionView_(False)
-        self.runWorkflowButton.setEnabled_(False)
-        self.cancelAndRestartButton.setEnabled_(False)
+        self.setWorkflowViewControlsEnabled(enabled=False)
 
     def enableWorkflowViewControls(self):
-        self.reloadWorkflowsButton.setEnabled_(True)
-        self.reloadWorkflowsMenuItem.setEnabled_(True)
-        self.cancelAndRestartButton.setEnabled_(True)
-        self.chooseWorkflowLabel.setEnabled_(True)
-        self.chooseTargetDropDown.setEnabled_(True)
-        self.chooseWorkflowDropDown.setEnabled_(True)
-        self.enableWorkflowDescriptionView_(True)
-        self.runWorkflowButton.setEnabled_(True)
-        self.cancelAndRestartButton.setEnabled_(True)
+        self.setWorkflowViewControlsEnabled()
+    
+    def setWorkflowViewControlsEnabled(self, enabled=True):
+        self.reloadWorkflowsButton.setEnabled_(enabled)
+        self.reloadWorkflowsMenuItem.setEnabled_(enabled)
+        self.cancelAndRestartButton.setEnabled_(enabled)
+        self.chooseWorkflowLabel.setEnabled_(enabled)
+        self.chooseTargetDropDown.setEnabled_(enabled)
+        self.chooseWorkflowDropDown.setEnabled_(enabled)
+        self.enableWorkflowDescriptionView_(enabled)
+        self.runWorkflowButton.setEnabled_(enabled)
+        self.cancelAndRestartButton.setEnabled_(enabled)
 
     @objc.IBAction
     def runWorkflow_(self, sender):
-        '''Set up the selected workflow to run on secondary thread'''
+        """Set up the selected workflow to run on secondary thread"""
         self.workflow_is_running = True
         selected_workflow = self.chooseWorkflowDropDown.titleOfSelectedItem()
 
@@ -711,7 +706,7 @@ class MainController(NSObject):
             self.processCountdownOnThread, self, None)
 
     def processCountdownOnThread(self, sender):
-        '''Count down for 30s or admin provided'''
+        """Count down for 30s or admin provided"""
         countdown = self.autoRunTime
         #pool = NSAutoreleasePool.alloc().init()
         if self.autorunWorkflow and self.targetVolume:
@@ -731,7 +726,7 @@ class MainController(NSObject):
         #del pool
 
     def processCountdownOnThreadComplete(self):
-        '''Done running countdown, start the default workflow'''
+        """Done running countdown, start the default workflow"""
         NSApp.endSheet_(self.imagingProgressPanel)
         self.imagingProgressPanel.orderOut_(self)
 
@@ -741,7 +736,7 @@ class MainController(NSObject):
 
     @objc.IBAction
     def cancelCountdown_(self, sender):
-        '''The user didn't want to automatically run the default workflow after all.'''
+        """The user didn't want to automatically run the default workflow after all."""
         self.autorunWorkflow = None
         # Avoid trying to autorun again.
         self.cancelledAutorun = True
@@ -841,137 +836,30 @@ class MainController(NSObject):
             self.openEndWorkflowPanel()
 
     def runComponent(self, item):
-        '''Run the selected workflow component'''
+        """Run the selected workflow component"""
         # No point carrying on if something is broken
         if not self.errorMessage:
             self.counter = self.counter + 1.0
-            # Restore image
-            if item.get('type') == 'image' and item.get('url'):
-                Utils.sendReport('in_progress', 'Restoring DMG: %s' % item.get('url'))
-                self.Clone(
-                    item.get('url'),
-                    self.targetVolume,
-                    verify=item.get('verify', True),
-                    ramdisk=item.get('ramdisk', False),
-                )
-            # startosinstall
-            elif item.get('type') == 'startosinstall':
-                Utils.sendReport('in_progress', 'starting macOS install: %s' % item.get('url'))
-                self.startOSinstall(item, ramdisk=item.get('ramdisk', False))
-            # Download and install package
-            elif item.get('type') == 'package' and not item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Downloading and installing package(s): %s' % item.get('url'))
-                self.downloadAndInstallPackages(item)
-            # Download and copy package
-            elif item.get('type') == 'package' and item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Downloading and installing first boot package(s): %s' % item.get('url'))
-                self.downloadAndCopyPackage(item, self.counter)
-                self.first_boot_items = True
-            # Copy first boot script
-            elif item.get('type') == 'script' and item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Copying first boot script %s' % str(self.counter))
-                if item.get('url'):
-                    if item.get('additional_headers'):
-                        (data, error) = Utils.downloadFile(item.get('url'), item.get('additional_headers'))
-                        self.copyFirstBootScript(data, self.counter)
-                    else:
-                        (data, error) = Utils.downloadFile(item.get('url'))
-                        self.copyFirstBootScript(data, self.counter)
-                else:
-                    self.copyFirstBootScript(item.get('content'), self.counter)
-                self.first_boot_items = True
-            # Run script
-            elif item.get('type') == 'script' and not item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Running script %s' % str(self.counter))
-                if item.get('url'):
-                    if item.get('additional_headers'):
-                        (data, error) = Utils.downloadFile(item.get('url'), item.get('additional_headers'))
-                        self.runPreFirstBootScript(data, self.counter)
-                    else:
-                        (data, error) = Utils.downloadFile(item.get('url'))
-                        self.runPreFirstBootScript(data, self.counter)
-                else:
-                    self.runPreFirstBootScript(item.get('content'), self.counter)
-            # Partition a disk
-            elif item.get('type') == 'partition':
-                Utils.sendReport('in_progress', 'Running partiton task.')
-                self.partitionTargetDisk(item.get('partitions'), item.get('map'))
-                if self.future_target == False:
-                    # If a partition task is done without a new target specified, no other tasks can be parsed.
-                    # Another workflow must be selected.
-                    NSLog("No target specified, reverting to workflow selection screen.")
 
-            elif item.get('type') == 'included_workflow':
-                Utils.sendReport('in_progress', 'Running included workflow.')
-                self.runIncludedWorkflow(item)
+            task = ImagrTask.taskForItem_target_(item, self.targetVolume)
+            task.progressDelegate = self
+            Utils.sendReport('in_progress', 'Running task: %s' % task)
+            include_workflow = task.run()
 
-            # Format a volume
-            elif item.get('type') == 'eraseVolume':
-                Utils.sendReport('in_progress', 'Erasing volume with name %s' % item.get('name', 'Macintosh HD'))
-                self.eraseTargetVolume(item.get('name', 'Macintosh HD'), item.get('format', 'Journaled HFS+'))
-            elif item.get('type') == 'computer_name':
-                if self.computerName:
-                    Utils.sendReport('in_progress', 'Setting computer name to %s' % self.computerName)
-                    script_dir = os.path.dirname(os.path.realpath(__file__))
-                    with open(os.path.join(script_dir, 'set_computer_name.sh')) as script:
-                        script=script.read()
-                    self.copyFirstBootScript(script, self.counter)
-                    self.first_boot_items = True
-            elif item.get('type') == 'localize':
-                Utils.sendReport('in_progress', 'Localizing Mac')
-                self.copyLocalize(item)
-                self.first_boot_items = True
-
-            # Workflow specific restart action
-            elif item.get('type') == 'restart_action':
-                Utils.sendReport('in_progress', 'Setting restart_action to %s' % item.get('action'))
-                self.restartAction = item.get('action')
+            if isinstance(include_workflow, str):
+                for workflow in self.workflows:
+                    if include_workflow.strip() == workflow['name'].strip():
+                        # logger.info("Included workflow: %s" % str(included_workflow))
+                        # run the workflow
+                        for component in workflow['components']:
+                            self.runComponent(component)
+                        return
+            elif isinstance(include_workflow, list):
+                for component in include_workflow:
+                    self.runComponent(component)
             else:
-                Utils.sendReport('error', 'Found an unknown workflow item.')
-                self.errorMessage = "Found an unknown workflow item."
+                pass  # Nothing given
 
-    def getIncludedWorkflow(self, item):
-        included_workflow = None
-        # find the workflow we're looking for
-        progress_method = self.updateProgressTitle_Percent_Detail_
-
-        target_workflow = None
-
-        if 'script' in item:
-            output_list = []
-            if progress_method:
-                progress_method("Running script to determine included workflow...", -1, '')
-            script = Utils.replacePlaceholders(item.get('script'), self.targetVolume.mountpoint)
-            script_file = tempfile.NamedTemporaryFile(delete=False)
-            script_file.write(script)
-            script_file.close()
-            os.chmod(script_file.name, 0700)
-            proc = subprocess.Popen(script_file.name, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-            while proc.poll() is None:
-                output = proc.stdout.readline().strip().decode('UTF-8')
-                output_list.append(output)
-                if progress_method:
-                    progress_method(None, None, output)
-            os.remove(script_file.name)
-            if proc.returncode != 0:
-                error_output = '\n'.join(output_list)
-                Utils.sendReport('error', 'Could not run included workflow script: %s' % error_output)
-                self.errorMessage = 'Could not run included workflow script: %s' % error_output
-                return
-            else:
-
-                for line in output_list:
-                    if line.startswith("ImagrIncludedWorkflow: ") or line.startswith("ImagrIncludedWorkflow:"):
-                        included_workflow = line.replace("ImagrIncludedWorkflow: ", "").replace("ImagrIncludedWorkflow:", "").strip()
-                        break
-        else:
-            included_workflow = item['name']
-        NSLog("Log: %@", str(included_workflow))
-        if included_workflow == None:
-            Utils.sendReport('error', 'No included workflow was returned.')
-            self.errorMessage = 'No included workflow was returned.'
-            return
-        return included_workflow
 
     def runIncludedWorkflow(self, item):
         '''Runs an included workflow'''
@@ -1029,477 +917,6 @@ class MainController(NSObject):
         self.computerName = self.computerNameInput.stringValue()
         self.theTabView.selectTabViewItem_(self.mainTab)
         self.workflowOnThreadPrep()
-
-    def Clone(self, source, target, erase=True, verify=True,
-              show_activity=True, ramdisk=False):
-        """A wrapper around 'asr' to clone one disk object onto another.
-
-        We run with --puppetstrings so that we get non-buffered output that we
-        can actually read when show_activity=True.
-
-        Args:
-            source: A Disk or Image object.
-            target: A Disk object (including a Disk from a mounted Image)
-            erase:  Whether to erase the target. Defaults to True.
-            verify: Whether to verify the clone operation. Defaults to True.
-            show_activity: whether to print the progress to the screen.
-        Returns:
-            boolean: whether the operation succeeded.
-        Raises:
-            MacDiskError: source is not a Disk or Image object
-            MacDiskError: target is not a Disk object
-        """
-
-        if isinstance(self.targetVolume, macdisk.Disk):
-            target_ref = "/dev/%s" % self.targetVolume.deviceidentifier
-        else:
-            raise macdisk.MacDiskError("target is not a Disk object")
-
-        if ramdisk:
-            ramdisksource = self.RAMDisk(source, imaging=True)
-            if ramdisksource[0]:
-                source = ramdisksource[0]
-            else:
-                if ramdisksource[1] is True:
-                    pass
-                else:
-                    self.errorMessage = ramdisksource[2]
-                    self.targetVolume.EnsureMountedWithRefresh()
-                    return False
-
-        is_apfs = False
-        if Utils.is_apfs(source):
-            NSLog("%@","Source is APFS")
-            is_apfs = True
-            # we need to restore to a whole disk here
-            if not self.targetVolume.wholedisk:
-                NSLog("%@","Source is not a whole disk")
-                target_ref = "/dev/%s" % self.targetVolume._attributes['ParentWholeDisk']
-        command = ["/usr/sbin/asr", "restore", "--source", str(source),
-                   "--target", target_ref, "--noprompt", "--puppetstrings"]
-
-
-        if self.targetVolume._attributes['FilesystemType'] == 'hfs' and\
-        is_apfs == True:
-            self.errorMessage = "%s is formatted as HFS and you are trying to restore an APFS disk image" % str(self.targetVolume.mountpoint)
-            self.targetVolume.EnsureMountedWithRefresh()
-            return False
-        elif self.targetVolume._attributes['FilesystemType'] == 'apfs' and\
-        is_apfs == False:
-            self.errorMessage = "%s is formatted as APFS and you are trying to restore an HFS disk image" % str(self.targetVolume.mountpoint)
-            self.targetVolume.EnsureMountedWithRefresh()
-            return False
-
-        if erase:
-            # check we can unmount the target... may as well fail here than later.
-            if self.targetVolume.Mounted():
-                self.targetVolume.Unmount()
-            command.append("--erase")
-
-        if not verify:
-            command.append("--noverify")
-
-        self.updateProgressTitle_Percent_Detail_('Restoring %s' % source, -1, '')
-        NSLog("%@", str(command))
-        task = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        message = ""
-        while task.poll() is None:
-            output = task.stdout.readline().strip()
-            try:
-                percent = int(output.split("\t")[1])
-            except:
-                percent = 0.001
-            if len(output.split("\t")) == 4:
-                if output.split("\t")[3] == "restore":
-                    message = "Restoring: "+ str(percent) + "%"
-                elif output.split("\t")[3] == "verify":
-                    message = "Verifying: "+ str(percent) + "%"
-                else:
-                    message = ""
-            else:
-                message = ""
-            if percent == 0:
-                percent = 0.001
-            self.updateProgressTitle_Percent_Detail_(None, percent, message)
-
-        (unused_stdout, stderr) = task.communicate()
-        if task.returncode:
-            self.errorMessage = "Cloning Error: %s" % stderr
-            self.targetVolume.EnsureMountedWithRefresh()
-            return False
-        if task.poll() == 0:
-            self.targetVolume.EnsureMountedWithRefresh()
-            if 'ramdisk' in source:
-                NSLog(u"Detaching RAM Disk post imaging.")
-                detachcommand = ["/usr/bin/hdiutil", "detach",
-                                 ramdisksource[1]]
-                detach = subprocess.Popen(detachcommand,
-                                          stdout=subprocess.PIPE,
-                                          stderr=subprocess.PIPE)
-            return True
-
-    def startOSinstall(self, item, ramdisk):
-        if ramdisk:
-            ramdisksource = self.RAMDisk(item, imaging=False)
-            if ramdisksource[0]:
-                ositem = {
-                    'ramdisk': True,
-                    'type': 'startosinstall',
-                    'url': ramdisksource[0]
-                    }
-            else:
-                if ramdisksource[1] is True:
-                    ositem = item
-                else:
-                    self.errorMessage = ramdisksource[2]
-                    self.targetVolume.EnsureMountedWithRefresh()
-                    return False
-        else:
-            ositem = item
-        self.updateProgressTitle_Percent_Detail_(
-            'Preparing macOS install...', -1, '')
-        success, detail = osinstall.run(
-            ositem, self.targetVolume.mountpoint,
-            progress_method=self.updateProgressTitle_Percent_Detail_)
-        if not success:
-            self.errorMessage = detail
-
-    def RAMDisk(self, source, imaging=False):
-        if imaging is True:
-            apfs_image = Utils.is_apfs(source)
-            if self.targetVolume._attributes['FilesystemType'] == 'hfs' and apfs_image is True:
-                error = "%s is formatted as HFS and you are trying to restore an APFS disk image" % str(self.targetVolume.mountpoint)
-                return False, False, error
-            elif self.targetVolume._attributes['FilesystemType'] == 'apfs' and apfs_image is False:
-                error = "%s is formatted as APFS and you are trying to restore an HFS disk image" % str(self.targetVolume.mountpoint)
-                return False, False, error
-        sysctlcommand = ["/usr/sbin/sysctl", "hw.memsize"]
-        sysctl = subprocess.Popen(sysctlcommand,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE)
-        memsizetuple = sysctl.communicate()
-        # sysctl returns crappy things from stdout.
-        # Ex: ('hw.memsize: 1111111\n', '')
-        memsize = int(
-            memsizetuple[0].split('\n')[0].replace('hw.memsize: ', ''))
-        NSLog(u"Total Memory is %@", str(memsize))
-        # Assume netinstall uses at least 650MB of RAM. If we don't require
-        # enough RAM, gurl will timeout or cause RecoveryOS to crash.
-        availablemem = memsize - 681574400
-        NSLog(u"Available Memory for DMG is %@", str(availablemem))
-        if imaging is True:
-            filesize = Utils.getDMGSize(source)[0]
-        else:
-            filesize = Utils.getDMGSize(source.get('url'))[0]
-        NSLog(u"Required Memory for DMG is %@", str(filesize))
-        # Formatting RAM Disk requires around 5% of the total amount of
-        # bytes. Add 10% to compensate for the padding we will need.
-        paddedfilesize = int(filesize) * 1.10
-        NSLog(u"Padded Memory for DMG is %@", str(paddedfilesize))
-        if filesize is False:
-            NSLog(u"Error when calculating source size. Using original method "
-                  "instead of gurl...")
-            return False, True
-        elif imaging is True and 9000000000 > memsize:
-            NSLog(u"Feature requires more than 9GB of RAM. Using asr "
-                  "instead of gurl...")
-            return False, True
-        elif int(paddedfilesize) > availablemem:
-            NSLog(u"Available Memory is not sufficient for source size. "
-                  "Using original method instead of gurl...")
-            return False, True
-        elif 8000000000 > memsize:
-            NSLog(u"Feature requires at least 8GB of RAM. Using original "
-                  "method instead of gurl...")
-            return False, True
-        else:
-            sectors = int(paddedfilesize) / 512
-            ramstring = "ram://%s" % str(sectors)
-            NSLog(u"Amount of Sectors for RAM Disk is %@", str(sectors))
-            ramattachcommand = ["/usr/bin/hdiutil", "attach", "-nomount",
-                                ramstring]
-            ramattach = subprocess.Popen(ramattachcommand,
-                                         stdout=subprocess.PIPE,
-                                         stderr=subprocess.PIPE)
-            devdisk = ramattach.communicate()
-            # hdiutil returns some really crappy things from stdout
-            # Ex: ('/dev/disk20     \t         \t\n', '')
-            devdiskstr = devdisk[0].split(' ')[0]
-            randomnum = random.randint(1000000, 10000000)
-            ramdiskvolname = "ramdisk" + str(randomnum)
-            NSLog(u"RAM Disk mountpoint is %@", str(ramdiskvolname))
-            NSLog(u"Formatting RAM Disk as HFS at %@", devdiskstr)
-            ramformatcommand = ["/sbin/newfs_hfs", "-v",
-                                ramdiskvolname, devdiskstr]
-            ramformat = subprocess.Popen(ramformatcommand,
-                                         stdout=subprocess.PIPE,
-                                         stderr=subprocess.PIPE)
-            NSLog(u"Mounting HFS RAM Disk %@", devdiskstr)
-            rammountcommand = ["/usr/sbin/diskutil", "erasedisk",
-                               'HFS+', ramdiskvolname, devdiskstr]
-            rammount = subprocess.Popen(rammountcommand,
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE)
-            # Wait for the disk to completely initialize
-            targetpath = os.path.join('/Volumes', ramdiskvolname)
-            while not os.path.isdir(targetpath):
-                NSLog(u"Sleeping 1 second to allow full disk initialization.")
-                time.sleep(1)
-            if imaging is True:
-                dmgsource = source
-            else:
-                dmgsource = source.get('url')
-            NSLog(u"Downloading DMG file from %@", str(dmgsource))
-            download_string = 'Downloading {}...'.format(str(dmgsource))
-            self.updateProgressTitle_Percent_Detail_(
-            download_string, -1, '')
-            sourceram = self.downloadDMG(dmgsource, targetpath)
-            if sourceram is False:
-                NSLog(u"Detaching RAM Disk due to failure.")
-                detachcommand = ["/usr/bin/hdiutil", "detach", devdiskstr]
-                detach = subprocess.Popen(detachcommand,
-                                          stdout=subprocess.PIPE,
-                                          stderr=subprocess.PIPE)
-                error = "DMG Failed to download via RAMDisk."
-                return False, False, error
-            return sourceram, devdiskstr
-
-    def downloadAndInstallPackages(self, item):
-        url = item.get('url')
-        custom_headers = item.get('additional_headers')
-        self.updateProgressTitle_Percent_Detail_('Installing packages...', -1, '')
-        # mount the target
-        self.targetVolume.EnsureMountedWithRefresh()
-
-        package_name = os.path.basename(url)
-        self.downloadAndInstallPackage(
-            url, self.targetVolume.mountpoint,
-            progress_method=self.updateProgressTitle_Percent_Detail_,
-            additional_headers=custom_headers)
-
-    def downloadAndInstallPackage(self, url, target, progress_method=None, additional_headers=None):
-        if not os.path.basename(url).endswith('.pkg') and not os.path.basename(url).endswith('.dmg'):
-            self.errorMessage = "%s doesn't end with either '.pkg' or '.dmg'" % url
-            return False
-        if os.path.basename(url).endswith('.dmg'):
-            error = None
-            # We're going to mount the dmg
-            try:
-                dmgmountpoints = Utils.mountdmg(url)
-                dmgmountpoint = dmgmountpoints[0]
-            except:
-                self.errorMessage = "Couldn't mount %s" % url
-                return False, self.errorMessage
-
-            # Now we're going to go over everything that ends .pkg or
-            # .mpkg and install it
-            for package in os.listdir(dmgmountpoint):
-                if package.endswith('.pkg') or package.endswith('.mpkg'):
-                    pkg = os.path.join(dmgmountpoint, package)
-                    retcode = self.installPkg(pkg, target, progress_method=progress_method)
-                    if retcode != 0:
-                        self.errorMessage = "Couldn't install %s" % pkg
-                        return False
-
-            # Unmount it
-            try:
-                Utils.unmountdmg(dmgmountpoint)
-            except:
-                self.errorMessage = "Couldn't unmount %s" % dmgmountpoint
-                return False, self.errorMessage
-
-        if os.path.basename(url).endswith('.pkg'):
-
-            # Make our temp directory on the target
-            temp_dir = tempfile.mkdtemp(dir=target)
-            # Download it
-            packagename = os.path.basename(url)
-            (downloaded_file, error) = Utils.downloadChunks(url, os.path.join(temp_dir,
-            packagename), additional_headers=additional_headers)
-            if error:
-                self.errorMessage = "Couldn't download - %s \n %s" % (url, error)
-                return False
-            # Install it
-            retcode = self.installPkg(downloaded_file, target, progress_method=progress_method)
-            if retcode != 0:
-                self.errorMessage = "Couldn't install %s" % downloaded_file
-                return False
-            # Clean up after ourselves
-            shutil.rmtree(temp_dir)
-
-
-    def downloadDMG(self, url, target):
-        if os.path.basename(url).endswith('.dmg'):
-            # Download it
-            dmgname = os.path.basename(url)
-            failsleft = 3
-            dmgpath = os.path.join(target, dmgname)
-            NSLog(u"DMG Path %@", str(dmgpath))
-            while not os.path.isfile(dmgpath):
-                (dmg, error) = Utils.downloadChunks(url, dmgpath, resume=True,
-                                                    progress_method=self.updateProgressTitle_Percent_Detail_)
-                if error:
-                    failsleft -= 1
-                    NSLog(u"DMG failed to download - Retries left: %@", str(failsleft))
-                if failsleft == 0:
-                    NSLog(u"Too many download failures. Exiting...")
-                    break
-            if failsleft == 0:
-                return False
-        else:
-            self.errorMessage = "%s doesn't end with '.dmg'" % url
-            return False
-        return dmg
-
-
-    def downloadAndCopyPackage(self, item, counter):
-        self.updateProgressTitle_Percent_Detail_(
-            'Copying packages for install on first boot...', -1, '')
-        # mount the target
-        if not self.targetVolume.Mounted():
-            self.targetVolume.Mount()
-        url = item.get('url')
-        custom_headers = item.get('additional_headers')
-        package_name = os.path.basename(url)
-        (output, error) = self.downloadPackage(url, self.targetVolume.mountpoint, counter,
-                              progress_method=self.updateProgressTitle_Percent_Detail_, additional_headers=custom_headers)
-        if error:
-            self.errorMessage = "Error copying first boot package %s - %s" % (url, error)
-            return False
-
-    def downloadPackage(self, url, target, number, progress_method=None, additional_headers=None):
-        error = None
-        dest_dir = os.path.join(target, 'usr/local/first-boot/items')
-        if not os.path.exists(dest_dir):
-            os.makedirs(dest_dir)
-        if not os.path.basename(url).endswith('.pkg') and not os.path.basename(url).endswith('.dmg'):
-            error = "%s doesn't end with either '.pkg' or '.dmg'" % url
-            return False, error
-        if os.path.basename(url).endswith('.dmg'):
-            NSLog("Copying pkg(s) from %@", url)
-            (output, error) = self.copyPkgFromDmg(url, dest_dir, number)
-        else:
-            NSLog("Downloading pkg %@", url)
-            package_name = "%03d-%s" % (number, os.path.basename(url))
-            os.umask(0002)
-            file = os.path.join(dest_dir, package_name)
-            (output, error) = Utils.downloadChunks(url, file, progress_method=progress_method, additional_headers=additional_headers)
-
-        return output, error
-
-    def copyPkgFromDmg(self, url, dest_dir, number):
-        error = None
-        # We're going to mount the dmg
-        try:
-            dmgmountpoints = Utils.mountdmg(url)
-            dmgmountpoint = dmgmountpoints[0]
-        except:
-            self.errorMessage = "Couldn't mount %s" % url
-            return False, self.errorMessage
-
-        # Now we're going to go over everything that ends .pkg or
-        # .mpkg and install it
-        pkg_list = []
-        for package in os.listdir(dmgmountpoint):
-            if package.endswith('.pkg') or package.endswith('.mpkg'):
-                pkg = os.path.join(dmgmountpoint, package)
-                dest_file = os.path.join(dest_dir, "%03d-%s" % (number, os.path.basename(pkg)))
-                try:
-                    if os.path.isfile(pkg):
-                        shutil.copy(pkg, dest_file)
-                    else:
-                        shutil.copytree(pkg, dest_file)
-                except:
-                    error = "Couldn't copy %s" % pkg
-                    return None, error
-                pkg_list.append(dest_file)
-
-        # Unmount it
-        try:
-            Utils.unmountdmg(dmgmountpoint)
-        except:
-            self.errorMessage = "Couldn't unmount %s" % dmgmountpoint
-            return False, self.errorMessage
-
-        return pkg_list, None
-
-    def copyFirstBootScript(self, script, counter):
-        if not self.targetVolume.Mounted():
-            self.targetVolume.Mount()
-
-        try:
-            self.copyScript(
-                script, self.targetVolume.mountpoint, counter,
-                progress_method=self.updateProgressTitle_Percent_Detail_)
-        except:
-            self.errorMessage = "Couldn't copy script %s" % str(counter)
-            return False
-
-    def runPreFirstBootScript(self, script, counter):
-        self.updateProgressTitle_Percent_Detail_(
-            'Preparing to run scripts...', -1, '')
-        # mount the target
-        if not self.targetVolume.Mounted():
-            self.targetVolume.Mount()
-
-        retcode, error_output = self.runScript(
-            script, self.targetVolume.mountpoint,
-            progress_method=self.updateProgressTitle_Percent_Detail_)
-
-        if retcode != 0:
-            if error_output is not None:
-                self.errorMessage = error_output
-            else:
-                self.errorMessage = "Script %s returned a non-0 exit code" % str(int(counter))
-
-    def runScript(self, script, target, progress_method=None):
-        """
-        Replaces placeholders in a script and then runs it.
-        """
-        # replace the placeholders in the script
-        script = Utils.replacePlaceholders(script, target)
-        error_output = None
-        output_list = []
-        # Copy script content to a temporary location and make executable
-        script_file = tempfile.NamedTemporaryFile(delete=False)
-        script_file.write(script)
-        script_file.close()
-        os.chmod(script_file.name, 0700)
-        if progress_method:
-            progress_method("Running script...", -1, '')
-        proc = subprocess.Popen(script_file.name, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        while proc.poll() is None:
-            output = proc.stdout.readline().strip().decode('UTF-8')
-            output_list.append(output)
-            if progress_method:
-                progress_method(None, None, output)
-        os.remove(script_file.name)
-        if proc.returncode != 0:
-            error_output = '\n'.join(output_list)
-        return proc.returncode, error_output
-
-    def copyScript(self, script, target, number, progress_method=None):
-        """
-        Copies a
-         script to a specific volume
-        """
-        dest_dir = os.path.join(target, 'usr/local/first-boot/items')
-        if not os.path.exists(dest_dir):
-            os.makedirs(dest_dir)
-        dest_file = os.path.join(dest_dir, "%03d" % number)
-        if progress_method:
-            progress_method("Copying script to %s" % dest_file, 0, '')
-        # convert placeholders
-        if self.computerName or self.keyboard_layout_id or self.keyboard_layout_name or self.language or self.locale or self.timezone:
-            script = Utils.replacePlaceholders(script, target, self.computerName, self.keyboard_layout_id, self.keyboard_layout_name, self.language, self.locale, self.timezone)
-        else:
-            script = Utils.replacePlaceholders(script, target)
-        # write file
-        with open(dest_file, "w") as text_file:
-            text_file.write(script)
-        # make executable
-        os.chmod(dest_file, 0755)
-        return dest_file
 
     @objc.IBAction
     def restartButtonClicked_(self, sender):
@@ -1574,148 +991,6 @@ class MainController(NSObject):
                     item_name, self.runUtilityFromMenu_, u'')
                 new_item.setTarget_(self)
                 self.utilities_menu.addItem_(new_item)
-
-    def installPkg(self, pkg, target, progress_method=None):
-        """
-        Installs a package on a specific volume
-        """
-        NSLog("Installing %@ to %@", pkg, target)
-        if progress_method:
-            progress_method("Installing %s" % os.path.basename(pkg), 0, '')
-        cmd = ['/usr/sbin/installer', '-pkg', pkg, '-target', target, '-verboseR']
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        while proc.poll() is None:
-            output = proc.stdout.readline().strip().decode('UTF-8')
-            if output.startswith("installer:"):
-                msg = output[10:].rstrip("\n")
-                if msg.startswith("PHASE:"):
-                    phase = msg[6:]
-                    if phase:
-                        NSLog(phase)
-                        if progress_method:
-                            progress_method(None, None, phase)
-                elif msg.startswith("STATUS:"):
-                    status = msg[7:]
-                    if status:
-                        NSLog(status)
-                        if progress_method:
-                            progress_method(None, None, status)
-                elif msg.startswith("%"):
-                    percent = float(msg[1:])
-                    NSLog("%@ percent complete", percent)
-                    if progress_method:
-                        progress_method(None, percent, None)
-                elif msg.startswith(" Error"):
-                    NSLog(msg)
-                    if progress_method:
-                        progress_method(None, None, msg)
-                elif msg.startswith(" Cannot install"):
-                    NSLog(msg)
-                    if progress_method:
-                        progress_method(None, None, msg)
-                else:
-                    NSLog(msg)
-                    if progress_method:
-                        progress_method(None, None, msg)
-
-        return proc.returncode
-
-    def partitionTargetDisk(self, partitions=None, partition_map="GPTFormat", progress_method=None):
-        """
-        Formats a target disk according to specifications.
-        'partitions' is a list of dictionaries of partition mappings for names, sizes, formats.
-        'partition_map' is a volume map type - MBR, GPT, or APM.
-        """
-        # self.targetVolume.mountpoint should be the actual volume we're targeting.
-        # self.targetVolume is the macdisk object that can be queried for its parent disk
-        parent_disk = self.targetVolume.Info()['ParentWholeDisk']
-        NSLog("Parent disk: %@", parent_disk)
-
-        numPartitions = 0
-        cmd = ['/usr/sbin/diskutil', 'partitionDisk', '/dev/' + parent_disk]
-        partitionCmdList = list()
-        future_target_name = ''
-        self.future_target = False
-        if partitions:
-            # A partition map was provided, so use that to repartition the disk
-            for partition in partitions:
-                target = list()
-                # Default format type is "Journaled HFS+, case-insensitive"
-                target.append(partition.get('format_type', 'Journaled HFS+'))
-                # Default name is "Macintosh HD"
-                target.append(partition.get('name', 'Macintosh HD'))
-                # Default partition size is 100% of the disk size
-                target.append(partition.get('size', '100%'))
-                partitionCmdList.extend(target)
-                numPartitions += 1
-                if partition.get('target'):
-                    NSLog("New target action found.")
-                    # A new default target for future workflow actions was specified
-                    self.future_target = True
-                    future_target_name = partition.get('name', 'Macintosh HD')
-            cmd.append(str(numPartitions))
-            cmd.append(str(partition_map))
-            cmd.extend(partitionCmdList)
-        else:
-            # No partition list was provided, so we just partition the target disk
-            # with one volume, named 'Macintosh HD', using JHFS+, GPT Format
-            cmd = ['/usr/sbin/diskutil', 'partitionDisk', '/dev/' + parent_disk,
-                    '1', 'GPTFormat', 'Journaled HFS+', 'Macintosh HD', '100%']
-        NSLog("%@", str(cmd))
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (partOut, partErr) = proc.communicate()
-        if partErr:
-            NSLog("Error occurred: %@", partErr)
-            self.errorMessage = partErr
-        NSLog("%@", partOut)
-        # At this point, we need to reload the possible targets, because '/Volumes/Macintosh HD' might not exist
-        self.should_update_volume_list = True
-        if self.future_target == True:
-            # Now assign self.targetVolume to new mountpoint
-            partitionListFromDisk = macdisk.Disk('/dev/' + str(parent_disk))
-            # this is in desperate need of refactoring and rewriting
-            # the only way to safely set self.targetVolume is to assign a new macdisk.Disk() object
-            # and then find the partition that matches our target
-            for partition in partitionListFromDisk.Partitions():
-                if partition.Info()['MountPoint'] == cmd[6]:
-                    self.targetVolume = partition
-                    break
-            NSLog("New target volume mountpoint is %@", self.targetVolume.mountpoint)
-
-
-    def eraseTargetVolume(self, name='Macintosh HD', format='Journaled HFS+', progress_method=None):
-        """
-        Erases the target volume.
-        'name' can be used to rename the volume on reformat.
-        'format' can be used to specify a format type.
-        'format' type of 'auto_hfs_or_apfs' will check for HFS+ or APFS
-        If no options are provided, it will format the volume with name 'Macintosh HD' with JHFS+.
-        """
-        NSLog("Format is: %@", format)
-        
-        if format == 'auto_hfs_or_apfs':
-            if self.targetVolume._attributes['FilesystemType'] == 'hfs':
-                format='Journaled HFS+'
-                NSLog("Detected HFS+ - erasing target")
-            elif self.targetVolume._attributes['FilesystemType'] == 'apfs':
-                format='APFS'
-                NSLog("Detected APFS - erasing target")
-            else:
-                NSLog("Volume not HFS+ or APFS, system returned: %@", self.targetVolume._attributes['FilesystemType'])
-                self.errorMessage = "Not HFS+ or APFS - specify volume format and reload workflows."
-        
-        cmd = ['/usr/sbin/diskutil', 'eraseVolume', format, name, self.targetVolume.mountpoint ]
-        NSLog("%@", cmd)
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (eraseOut, eraseErr) = proc.communicate()
-        if eraseErr:
-            NSLog("Error occured when erasing volume: %@", eraseErr)
-            self.errorMessage = eraseErr
-        NSLog("%@", eraseOut)
-        # Reload possible targets, because '/Volumes/Macintosh HD' might not exist
-        if name != 'Macintosh HD':
-            # If the volume was renamed, or isn't named 'Macintosh HD', then we should recheck the volume list
-            self.should_update_volume_list = True
 
     def copyLocalize(self, item):
         if 'keyboard_layout_name' in item:
