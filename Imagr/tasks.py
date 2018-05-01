@@ -788,7 +788,7 @@ class ReformatTask(ImagrTask):
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (eraseOut, eraseErr) = proc.communicate()
         if eraseErr:
-        NSLog("Error occured when reformatting volume: %@", eraseErr)
-        self.errorMessage = eraseErr
-            NSLog("%@", eraseOut)
+            NSLog("Error occured when reformatting volume: %@", eraseErr)
+            self.errorMessage = eraseErr
+        NSLog("%@", eraseOut)
         return True

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>workflows</key>
+  <array>
+    <dict>
+      <key>name</key>
+      <string>TEST_Embedded_Script</string>
+      <key>description</key>
+      <string>Test an Embedded Script which echoes to /tmp/embedded_script.txt</string>
+      <key>components</key>
+      <array>   
+        <dict>
+            <key>type</key>
+            <string>script</string>
+            <key>content</key>
+            <string>#!/bin/bash
+echo "embedded script content" > /tmp/embedded_script.txt
+            </string>
+            <key>first_boot</key>
+            <false/>
+        </dict>
+      </array>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>TEST_URL_Script</string>
+      <key>description</key>
+      <string>Test a remote fetch script which echoes to /tmp/embedded_script.txt</string>
+      <key>components</key>
+      <array>   
+        <dict>
+            <key>type</key>
+            <string>script</string>
+            <key>url</key>
+            <string>http://localhost:8080/scripts/test.sh</string>
+            <key>first_boot</key>
+            <false/>
+        </dict>
+      </array>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>TEST_FB_URL_Script</string>
+      <key>description</key>
+      <string>Test a first-boot remote fetch script which echoes to /tmp/embedded_script.txt</string>
+      <key>components</key>
+      <array>   
+        <dict>
+            <key>type</key>
+            <string>script</string>
+            <key>url</key>
+            <string>http://localhost:8080/scripts/test.sh</string>
+        </dict>
+      </array>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>TEST_FB_Embedded_Script</string>
+      <key>description</key>
+      <string>Test a first-boot Embedded Script which echoes to /tmp/embedded_script.txt</string>
+      <key>components</key>
+      <array>   
+        <dict>
+            <key>type</key>
+            <string>script</string>
+            <key>content</key>
+            <string>#!/bin/bash
+echo "embedded script content" > /tmp/embedded_script.txt
+            </string>
+        </dict>
+      </array>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>TEST_Package</string>
+      <key>description</key>
+      <string>Test an immediately installed package task (munki)</string>
+      <key>components</key>
+      <array>   
+        <dict>
+            <key>type</key>
+            <string>package</string>
+            <key>url</key>
+            <string>https://github.com/munki/munki/releases/download/v3.2.0/munkitools-3.2.0.3476.pkg</string>
+            <key>first_boot</key>
+            <false/>
+        </dict>
+      </array>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>TEST_FB_Package</string>
+      <key>description</key>
+      <string>Test a first-boot installed package task (munki)</string>
+      <key>components</key>
+      <array>   
+        <dict>
+            <key>type</key>
+            <string>package</string>
+            <key>url</key>
+            <string>https://github.com/munki/munki/releases/download/v3.2.0/munkitools-3.2.0.3476.pkg</string>
+        </dict>
+      </array>
+    </dict>
+  </array>
+</dict>
+</plist>

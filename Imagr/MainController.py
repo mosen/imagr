@@ -627,6 +627,7 @@ class MainController(NSObject):
         """Set up the selected workflow to run on secondary thread"""
         self.workflow_is_running = True
         selected_workflow = self.chooseWorkflowDropDown.titleOfSelectedItem()
+        NSLog("Running workflow %@", selected_workflow)
 
         if self.autorunWorkflow:
             selected_workflow = self.autorunWorkflow
@@ -637,6 +638,7 @@ class MainController(NSObject):
             if selected_workflow == workflow['name']:
                 self.selectedWorkflow = workflow
                 break
+        
         if self.selectedWorkflow:
             if 'restart_action' in self.selectedWorkflow:
                 self.restartAction = self.selectedWorkflow['restart_action']
@@ -658,6 +660,8 @@ class MainController(NSObject):
 
             if not settingName:
                 self.workflowOnThreadPrep()
+        else:
+            NSLog("No workflow was found matching the requested name")
 
     def checkForNameComponent(self, item):
         if item.get('type') == 'computer_name':

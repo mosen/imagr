@@ -11,6 +11,7 @@
 		100FA3EC1D51DC6C000F1C1C /* powermgr.py in Resources */ = {isa = PBXBuildFile; fileRef = 100FA3EB1D51DC6C000F1C1C /* powermgr.py */; };
 		10DA31C31D92963A00969112 /* se.gu.it.LoginLog.login.plist in Resources */ = {isa = PBXBuildFile; fileRef = 10DA31C21D92963A00969112 /* se.gu.it.LoginLog.login.plist */; };
 		347ECFA92096C77B00CC0C34 /* tasks.py in Resources */ = {isa = PBXBuildFile; fileRef = 347ECFA82096C77B00CC0C34 /* tasks.py */; };
+		3489C29E2097FD33004285D0 /* imagr_config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3489C29D2097FD32004285D0 /* imagr_config.plist */; };
 		34D1DFDD2096D41E009BAAC9 /* test_included_workflow.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD32096D41D009BAAC9 /* test_included_workflow.py */; };
 		34D1DFDE2096D41E009BAAC9 /* remote_script.sh in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD42096D41D009BAAC9 /* remote_script.sh */; };
 		34D1DFDF2096D41E009BAAC9 /* test_script.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD52096D41D009BAAC9 /* test_script.py */; };
@@ -80,6 +81,7 @@
 		100FA3EB1D51DC6C000F1C1C /* powermgr.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = powermgr.py; sourceTree = "<group>"; };
 		10DA31C21D92963A00969112 /* se.gu.it.LoginLog.login.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = se.gu.it.LoginLog.login.plist; sourceTree = "<group>"; };
 		347ECFA82096C77B00CC0C34 /* tasks.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = tasks.py; sourceTree = "<group>"; };
+		3489C29D2097FD32004285D0 /* imagr_config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = imagr_config.plist; sourceTree = "<group>"; };
 		34D1DFD32096D41D009BAAC9 /* test_included_workflow.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_included_workflow.py; sourceTree = "<group>"; };
 		34D1DFD42096D41D009BAAC9 /* remote_script.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = remote_script.sh; sourceTree = "<group>"; };
 		34D1DFD52096D41D009BAAC9 /* test_script.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_script.py; sourceTree = "<group>"; };
@@ -161,6 +163,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3489C29C2097FD32004285D0 /* testdata */ = {
+			isa = PBXGroup;
+			children = (
+				3489C29D2097FD32004285D0 /* imagr_config.plist */,
+			);
+			path = testdata;
+			sourceTree = SOURCE_ROOT;
+		};
 		34D1DFD02096D3FF009BAAC9 /* tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -249,6 +259,7 @@
 		FCEA80B51AD0101100DBA039 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3489C29C2097FD32004285D0 /* testdata */,
 				34D1DFD02096D3FF009BAAC9 /* tests */,
 				050D9F811CE5FF1000250591 /* LLBorderlessWindow.h */,
 				050D9F821CE5FF1000250591 /* LLBorderlessWindow.m */,
@@ -429,6 +440,7 @@
 				FCEA80FC1AD018E500DBA039 /* getauth.py in Resources */,
 				34D1DFE12096D41E009BAAC9 /* test_partition.py in Resources */,
 				FCF6B3101AD1D73E00311D3A /* package.icns in Resources */,
+				3489C29E2097FD33004285D0 /* imagr_config.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
