@@ -380,30 +380,27 @@ def getPasswordHash(password):
     return hashlib.sha512(password).hexdigest()
 
 
-def getPlistData(data):
-    # Try the user's homedir
-    try:
-        # NSLog("Trying Home Location")
-        homedir = os.path.expanduser("~")
-        plist = FoundationPlist.readPlist(os.path.join(homedir, "Library", "Preferences", "com.grahamgilbert.Imagr.plist"))
-        return plist[data]
-    except:
-        pass
-    # Try the main prefs
-    try:
-        # NSLog("Trying System Location")
-        plist = FoundationPlist.readPlist(os.path.join("/Library", "Preferences", "com.grahamgilbert.Imagr.plist"))
-        return plist[data]
-    except:
-        pass
+def get_preference(key):  # type: (str) -> object
+    homedir = os.path.expanduser("~")
 
-    # Hopefully we're in a netboot set, try in /System/Installation/Packages
-    try:
-        # NSLog("Trying NetBoot Location")
-        plist = FoundationPlist.readPlist(os.path.join("/System", "Installation", "Packages", "com.grahamgilbert.Imagr.plist"))
-        return plist[data]
-    except:
-        pass
+    lookup_order = [
+        os.path.join(homedir, "Library", "Preferences", "com.grahamgilbert.Imagr.plist"),
+        os.path.join("/Library", "Preferences", "com.grahamgilbert.Imagr.plist"),
+        os.path.join("/System", "Installation", "Packages", "com.grahamgilbert.Imagr.plist"),
+    ]
+
+    for plist_path in lookup_order:
+        if not os.path.exists(plist_path):
+            continue
+        try:
+            plist = FoundationPlist.readPlist(plist_path)
+            if key in plist:
+                return plist[key]
+        except FoundationPlist.NSPropertyListSerializationException:
+            continue
+
+    return None
+
 
 def setDate():
     # Don't bother if we aren't running as root.
@@ -462,25 +459,11 @@ def setDate():
     failure()
 
 
-def getServerURL():
-    data = getPlistData('serverurl')
-    NSLog('Report: %@', data)
-    return data
-
-
-def getReportURL():
-    report_url = getPlistData('reporturl')
-    if report_url:
-        return report_url
-    else:
-        return None
-
-
 def sendReport(status, message):
     hardware_info = get_hardware_info()
     SERIAL = hardware_info.get('serial_number', 'UNKNOWN')
 
-    report_url = getReportURL()
+    report_url = get_preference('reporturl')
     if report_url and len(message) > 0:
         # Should probably do some validation on the status at some point
         data = {
@@ -565,7 +548,7 @@ def get_hardware_info():
 
 
 def setup_logging():
-    syslog = getPlistData('syslog')
+    syslog = get_preference('syslog')
 
     if not syslog:
         return
@@ -789,6 +772,8 @@ def is_apfs(source):
         return isApfs
     NSLog(u"Result of isApfs is %@", str(isApfs))
     return isApfs
+
+
 def mountedVolumes():
     """Return an array with information dictionaries for each mounted volume."""
     volumes = []

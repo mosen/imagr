@@ -158,7 +158,7 @@ class MainController(NSObject):
         NSThread.detachNewThreadSelector_toTarget_withObject_(self.loadData, self, None)
 
     def backgroundWindowSetting(self):
-        return Utils.getPlistData(u"background_window") or u"auto"
+        return Utils.get_preference(u"background_window") or u"auto"
 
     def showBackgroundWindow(self):
         # Create a background window that covers the whole screen.
