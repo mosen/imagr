@@ -19,6 +19,7 @@ class ImagrTaskError(Exception):
 
 
 class ImagrTaskDelegate(NSObject):
+    """Objects can implement this delegate (abc) to receive information about progress and status."""
 
     @abc.abstractmethod
     def updateProgressTitle_Percent_Detail_(self, title, percent, detail):
@@ -26,6 +27,8 @@ class ImagrTaskDelegate(NSObject):
 
 
 class ImagrReportDelegate(NSObject):
+    """Objects can implement this delegate (abc) to receive detailed, structured information, designed
+    for submission to a reporting system"""
 
     @abc.abstractmethod
     def sendReport(self, status, message):
@@ -34,13 +37,13 @@ class ImagrReportDelegate(NSObject):
 
 class ImagrTask(NSObject):
 
-    progressDelegate = None
-    reportDelegate = None
-    item = None
+    progressDelegate = None  # type: ImagrTaskDelegate
+    reportDelegate = None  # type: ImagrReportDelegate
+    item = None  # type: Dict
     target = None  # type: macdisk.Disk
-    _newTarget = None
+    _newTarget = None  # type: Optional[macdisk.Disk]
 
-    def init(self):
+    def init(self):  # type: () -> Optional[ImagrTask]
         """Designated Initializer for ImagrTask"""
         self = objc.super(ImagrTask, self).init()
         if self is None:
@@ -48,7 +51,7 @@ class ImagrTask(NSObject):
 
         return self
 
-    def initWithItem_(self, item):
+    def initWithItem_(self, item):  # type: (Dict) -> Optional[ImagrTask]
         """Initialise an ImagrTask with the item dict for this step."""
         self = objc.super(ImagrTask, self).init()
         if self is None:
@@ -58,7 +61,7 @@ class ImagrTask(NSObject):
 
         return self
 
-    def initWithItem_target_(self, item, target):
+    def initWithItem_target_(self, item, target):  # type: (Dict, macdisk.Disk) -> Optional[ImagrTask]
         """Initialise an ImagrTask with the item dict for this step, and the target volume."""
         self = objc.super(ImagrTask, self).init()
         if self is None:
@@ -72,7 +75,6 @@ class ImagrTask(NSObject):
     def newTarget(self):  # type: () -> Optional[macdisk.Disk]
         """Target did change as a result of this operation?"""
         return self._newTarget
-
 
     @abc.abstractmethod
     def run(self, dry=False):  # type: (bool) -> Union[None, str, List]
@@ -88,7 +90,7 @@ class ImagrTask(NSObject):
         """
         pass
 
-    def is_valid(self, item):
+    def is_valid(self, item):  # type: (Dict) -> Tuple[Bool, Optional[str]]
         """Validate the workflow item that the user has configured.
 
         Args:
@@ -106,7 +108,7 @@ class ImagrTask(NSObject):
         if 'type' not in item:
             raise TypeError('Workflow component contains no `type` key')
 
-        t = item.get('type')
+        t = item['type']
 
         if t == 'image':
             task = ImageTask.alloc().initWithItem_target_(item, target)
@@ -126,6 +128,12 @@ class ImagrTask(NSObject):
                 task = FirstBootScriptTask.alloc().initWithItem_target_(item, target)
             else:
                 task = ScriptTask.alloc().initWithItem_target_(item, target)
+        elif t == 'computer_name':
+            raise TypeError('Not Implemented')
+        elif t == 'localize':
+            raise TypeError('Not Implemented')
+        elif t == 'eraseVolume':
+            task = EraseVolumeTask.alloc().initWithItem_target_(item, target)
         else:
             raise TypeError("Unexpected task type: %s" % t)
 
@@ -790,5 +798,46 @@ class ReformatTask(ImagrTask):
         if eraseErr:
             NSLog("Error occured when reformatting volume: %@", eraseErr)
             self.errorMessage = eraseErr
-        NSLog("%@", eraseOut)
+            NSLog("%@", eraseOut)
         return True
+
+class LocalizeTask(ImagrTask):
+
+    def copyLocalize(self, item):
+        # # For localize script
+        # keyboard_layout_name = None
+        # keyboard_layout_id = None
+        # language = None
+        # locale = None
+        # timezone = None
+
+        if 'keyboard_layout_name' in item:
+            self.keyboard_layout_name = item['keyboard_layout_name']
+
+        if 'keyboard_layout_id' in item:
+            self.keyboard_layout_id = item['keyboard_layout_id']
+
+        if 'language' in item:
+            self.language = item['language']
+
+        if 'locale' in item:
+            self.locale = item['locale']
+
+        if 'timezone' in item:
+            self.timezone = item['timezone']
+
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(script_dir, 'localize.sh')) as script:
+            script=script.read()
+        self.copyFirstBootScript(script, self.counter)
+
+
+class ComputerNameTask(ImagrTask):
+    pass
+    # if self.computerName:
+    #     Utils.sendReport('in_progress', 'Setting computer name to %s' % self.computerName)
+    # script_dir = os.path.dirname(os.path.realpath(__file__))
+    # with open(os.path.join(script_dir, 'set_computer_name.sh')) as script:
+    #     script=script.read()
+    # self.copyFirstBootScript(script, self.counter)
+    # self.first_boot_items = True

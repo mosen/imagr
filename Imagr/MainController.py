@@ -110,13 +110,6 @@ class MainController(NSObject):
     authenticatedUsername = None
     authenticatedPassword = None
 
-    # For localize script
-    keyboard_layout_name = None
-    keyboard_layout_id = None
-    language = None
-    locale = None
-    timezone = None
-
     def errorPanel(self, error):
         if error:
             errorText = str(error)
@@ -165,7 +158,7 @@ class MainController(NSObject):
         NSThread.detachNewThreadSelector_toTarget_withObject_(self.loadData, self, None)
 
     def backgroundWindowSetting(self):
-        return Utils.getPlistData(u"background_window") or u"auto"
+        return Utils.get_preference(u"background_window") or u"auto"
 
     def showBackgroundWindow(self):
         # Create a background window that covers the whole screen.
@@ -363,47 +356,28 @@ class MainController(NSObject):
                     converted_plist = FoundationPlist.readPlistFromString(plistData)
                 except:
                     self.errorMessage = "Configuration plist couldn't be read."
+                    converted_plist = {}
 
-                try:
-                    self.waitForNetwork = converted_plist['wait_for_network']
-                except:
-                    pass
+                self.waitForNetwork = converted_plist.get('wait_for_network', True)
+                self.autoRunTime = converted_plist.get('autorun_time', 30)
 
-                try:
-                    self.autoRunTime = converted_plist['autorun_time']
-                except:
-                    pass
-
-                try:
-                    urlString = converted_plist['background_image']
+                urlString = converted_plist.get('background_image', None)
+                if urlString is not None:
                     NSThread.detachNewThreadSelector_toTarget_withObject_(self.loadBackgroundImage, self, urlString)
-                except:
-                    pass
 
-                try:
-                    self.passwordHash = converted_plist['password']
-                except:
-                    # Bypass the login form if no password is given.
-                    self.hasLoggedIn = True
+                self.passwordHash = converted_plist.get('password', None)
+                if self.passwordHash is None:
+                    self.hasLoggedIn = True  # Bypass the login form if no password is given.
 
-                try:
-                    self.workflows = converted_plist['workflows']
-                except:
+                self.workflows = converted_plist.get('workflows', None)
+                if self.workflows is None:
                     self.errorMessage = "No workflows found in the configuration plist."
 
-                try:
-                    self.defaultWorkflow = converted_plist['default_workflow']
-                except:
-                    pass
-
-                try:
-                    self.autorunWorkflow = converted_plist['autorun']
-
-                    # If we've already cancelled autorun, don't bother trying to autorun again.
-                    if self.cancelledAutorun:
-                        self.autorunWorkflow = None
-                except:
-                    pass
+                self.defaultWorkflow = converted_plist.get('default_workflow', None)
+                self.autorunWorkflow = converted_plist.get('autorun', None)
+                # If we've already cancelled autorun, don't bother trying to autorun again.
+                if self.cancelledAutorun:
+                    self.autorunWorkflow = None
             else:
                 self.errorMessage = "Couldn't get configuration plist. \n %s. \n '%s'" % (error.reason, error.url)
         else:
@@ -995,27 +969,6 @@ class MainController(NSObject):
                     item_name, self.runUtilityFromMenu_, u'')
                 new_item.setTarget_(self)
                 self.utilities_menu.addItem_(new_item)
-
-    def copyLocalize(self, item):
-        if 'keyboard_layout_name' in item:
-            self.keyboard_layout_name = item['keyboard_layout_name']
-
-        if 'keyboard_layout_id' in item:
-            self.keyboard_layout_id = item['keyboard_layout_id']
-
-        if 'language' in item:
-            self.language = item['language']
-
-        if 'locale' in item:
-            self.locale = item['locale']
-
-        if 'timezone' in item:
-            self.timezone = item['timezone']
-
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.join(script_dir, 'localize.sh')) as script:
-            script=script.read()
-        self.copyFirstBootScript(script, self.counter)
 
     def shakeWindow(self):
         shake = {'count': 1, 'duration': 0.3, 'vigor': 0.04}
