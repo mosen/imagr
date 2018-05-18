@@ -2,7 +2,7 @@ import unittest
 import os
 import sys
 
-sys.path.append(os.path.dirname(__file__) + '/../Imagr')
+sys.path.append(os.path.dirname(__file__) + '/../Imagr/Resources')
 sys.path.append(os.path.dirname(__file__) + '/../Imagr/gmacpyutil')
 
 from fixtures import TargetVolumeFixture

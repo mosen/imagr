@@ -9,7 +9,7 @@
 
 import hashlib
 import os
-import Imagr.FoundationPlist
+import FoundationPlist
 import plistlib
 import shutil
 import urllib
@@ -33,7 +33,7 @@ import random
 import macdisk
 import objc
 
-from Imagr.gurl import Gurl
+from gurl import Gurl
 
 
 class GurlError(Exception):
@@ -708,8 +708,9 @@ FIRST_BOOT_INSTALL = [
     (os.path.join(script_dir, "first-boot"), "/usr/local/first-boot/first-boot", 0, 0, 0755),
 ]
 
+
 def copyFirstBoot(root, network=True, reboot=True):
-    NSLog("Copying first boot pkg install tools")
+    NSLog("Copying first boot pkg install tools to volume at %@", root)
     # Create the config plist
     config_plist = {}
     retry_count = 10
@@ -724,16 +725,17 @@ def copyFirstBoot(root, network=True, reboot=True):
 
     for first_boot_item in FIRST_BOOT_INSTALL:
         sourceFile, destFile, owner, group, mode = first_boot_item
-        
-        if not os.path.exists(os.path.dirname(destFile)):
-            os.makedirs(os.path.dirname(destFile))
+        destPath = os.path.join(root, destFile)
+
+        if not os.path.exists(os.path.dirname(destPath)):
+            os.makedirs(os.path.dirname(destPath))
 
         if os.path.isdir(sourceFile): # Bundle
-            shutil.copytree(sourceFile, destFile)
+            shutil.copytree(sourceFile, destPath)
         else:
-            shutil.copy(sourceFile, destFile)
-        os.chmod(destFile, mode)
-        os.chown(destFile, owner, group)
+            shutil.copy(sourceFile, destPath)
+        os.chmod(destPath, mode)
+        os.chown(destPath, owner, group)
 
     for root_dir, dirs, files in os.walk(os.path.join(root, "/Library/PrivilegedHelperTools/LoginLog.app")):
       for momo in dirs:
@@ -742,6 +744,7 @@ def copyFirstBoot(root, network=True, reboot=True):
       for momo in files:
         os.chown(os.path.join(root_dir, momo), 0, 0)
         os.chmod(os.path.join(root_dir, momo), 0755)
+
 
 def is_apfs(source):
     """

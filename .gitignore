@@ -6,7 +6,7 @@ build-test.sh
 com.grahamgilbert.Imagr.plist
 Packages/
 AutoNBI.py
-FoundationPlist*
+Imagr/Resources/FoundationPlist.py
 Imagr.xcodeproj/project.xcworkspace/xcuserdata/*
 *.mk
 rc.netboot
