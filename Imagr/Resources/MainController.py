@@ -7,20 +7,16 @@
 #  Copyright (c) 2015 Graham Gilbert. All rights reserved.
 #
 
-import objc
-import FoundationPlist
+import Imagr.FoundationPlist
 import os
-from SystemConfiguration import *
-from Foundation import *
 from AppKit import *
-from Cocoa import *
 from Quartz.CoreGraphics import *
 
 import subprocess
-import Utils
+from Imagr.Resources import Utils
 import PyObjCTools
 import Quartz
-from tasks import ImagrTask
+from Imagr.Resources.tasks import ImagrTask
 
 
 class MainController(NSObject):
@@ -196,7 +192,7 @@ class MainController(NSObject):
 
         if not urlString.endswith(u"?"):
             try:
-                verplist = FoundationPlist.readPlist("/System/Library/CoreServices/SystemVersion.plist")
+                verplist = Imagr.FoundationPlist.readPlist("/System/Library/CoreServices/SystemVersion.plist")
                 osver = verplist[u"ProductUserVisibleVersion"]
                 osbuild = verplist[u"ProductBuildVersion"]
                 size = NSScreen.mainScreen().frame().size
@@ -353,7 +349,7 @@ class MainController(NSObject):
 
             if plistData:
                 try:
-                    converted_plist = FoundationPlist.readPlistFromString(plistData)
+                    converted_plist = Imagr.FoundationPlist.readPlistFromString(plistData)
                 except:
                     self.errorMessage = "Configuration plist couldn't be read."
                     converted_plist = {}
@@ -865,7 +861,7 @@ class MainController(NSObject):
         # Try to get existing HostName
         try:
             preferencePath = os.path.join(self.targetVolume.mountpoint,'Library/Preferences/SystemConfiguration/preferences.plist')
-            preferencePlist = FoundationPlist.readPlist(preferencePath)
+            preferencePlist = Imagr.FoundationPlist.readPlist(preferencePath)
             existing_name = preferencePlist['System']['System']['HostName']
         except:
             # If we can't get the name, assign empty string for now

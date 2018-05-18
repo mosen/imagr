@@ -31,7 +31,7 @@ from distutils import version
 from Foundation import NSLog
 
 # our imports
-import FoundationPlist
+import Imagr.FoundationPlist
 import Utils
 
 
@@ -65,9 +65,9 @@ def get_os_version(app_path):
         # no Contents/SharedSupport/InstallInfo.plist
         return ''
     try:
-        info = FoundationPlist.readPlist(installinfo_plist)
+        info = Imagr.FoundationPlist.readPlist(installinfo_plist)
         return info['System Image Info']['version']
-    except (FoundationPlist.FoundationPlistException,
+    except (Imagr.FoundationPlist.FoundationPlistException,
             IOError, KeyError, AttributeError, TypeError):
         return ''
 

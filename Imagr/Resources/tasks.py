@@ -5,8 +5,6 @@ import tempfile
 import shutil
 import re
 
-import objc
-from Foundation import *
 from Cocoa import *
 import macdisk
 
@@ -36,6 +34,12 @@ class ImagrReportDelegate(NSObject):
 
 
 class ImagrTask(NSObject):
+    """All Imagr tasks inherit this object.
+
+    Instead of setting this.errorMessage as before with Imagr, each task can throw ImagrTaskError when an unexpected
+    error occurs. This should show the alert sheet for that exception.
+
+    """
 
     progressDelegate = None  # type: ImagrTaskDelegate
     reportDelegate = None  # type: ImagrReportDelegate
@@ -140,7 +144,6 @@ class ImagrTask(NSObject):
         return task
 
 
-
 class IncludedWorkflowTask(ImagrTask):
 
     def includedWorkflowFromScript(self, script):  # type: (str) -> str
@@ -238,6 +241,42 @@ class StartOSInstallTask(ImagrTask):
 
 
 class PartitionTask(ImagrTask):
+    """This task partitions the parent disk of the target volume.
+
+    **Example**
+
+    Partition the target disk with GPT partition table splitting the disk 50/50 with HFS+ formatted volumes.
+    The first volume subsequently becomes the next target of the workflow.
+
+    .. code-block:: xml
+        <dict>
+            <key>type</key>
+            <string>partition</string>
+            <key>map</key>
+            <string>GPTFormat</string>
+            <key>partitions</key>
+            <array>
+                <dict>
+                    <key>format_type</key>
+                    <string>Journaled HFS+</string>
+                    <key>name</key>
+                    <string>First</string>
+                    <key>size</key>
+                    <string>50%</string>
+                    <key>target</key>
+                    <true/>
+                </dict>
+                <dict>
+                    <key>format_type</key>
+                    <string>Journaled HFS+</string>
+                    <key>name</key>
+                    <string>Second</string>
+                    <key>size</key>
+                    <string>50%</string>
+                </dict>
+            </array>
+        </dict>
+    """
 
     def _build_partition_command(self, partitions, partition_map, parent_disk):
         cmd = ['/usr/sbin/diskutil', 'partitionDisk', '/dev/' + parent_disk]
@@ -379,6 +418,17 @@ class EraseVolumeTask(ImagrTask):
 class FirstBootScriptTask(ImagrTask):
     """Imagr Task: Download and stage a script for run on first boot."""
 
+    def initWithItem_target_(self, item, target):  # type: (Dict, macdisk.Disk) -> Optional[ImagrTask]
+        """Initialise a FirstBootScriptTask with the item dict for this step, and the target volume."""
+        self = objc.super(FirstBootScriptTask, self).initWithItem_target_(item, target)
+        if self is None:
+            return None
+
+        # The path where first boot items will be copied
+        self.first_boot_path = os.path.join(target, 'usr/local/first-boot/items')
+
+        return self
+
     def run(self, dry=False):
         if self.reportDelegate:
             self.reportDelegate.sendReport('in_progress', 'Copying first boot script %s' % str(self.counter))
@@ -410,10 +460,9 @@ class FirstBootScriptTask(ImagrTask):
         Copies a
          script to a specific volume
         """
-        dest_dir = os.path.join(target, 'usr/local/first-boot/items')
-        if not os.path.exists(dest_dir):
-            os.makedirs(dest_dir)
-        dest_file = os.path.join(dest_dir, "%03d" % number)
+        if not os.path.exists(self.first_boot_path):
+            os.makedirs(self.first_boot_path)
+        dest_file = os.path.join(self.first_boot_path, "%03d" % number)
         if progress_method:
             progress_method("Copying script to %s" % dest_file, 0, '')
         # convert placeholders
@@ -782,6 +831,7 @@ class ImageTask(ImagrTask):
                                  ramdisk_dev]
                 subprocess.check_call(detachcommand)
             return True
+
 
 class ReformatTask(ImagrTask):
     """Imagr Task: Reformat

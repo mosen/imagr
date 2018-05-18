@@ -13,13 +13,17 @@ import macdisk
 
 HTTP_PORT = 8001
 
+
 class TestServer(SocketServer.TCPServer):
     allow_reuse_address = True
 
 
 class TargetVolumeFixture(object):
     """TargetVolumeFixture creates a DMG which will be the target of disk operations on the machine running the Imagr test suite.
-    It is still recommended to test in a VM."""
+    It is still recommended to test in a VM.
+
+    The type of the target property is macdisk.Disk
+    """
 
     def make_target(self, size_spec="50M", label=__name__):
         self.output_temp = tempfile.mktemp(prefix="imagr", suffix="dmg")

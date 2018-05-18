@@ -8,9 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		050D9F831CE5FF1000250591 /* LLBorderlessWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 050D9F821CE5FF1000250591 /* LLBorderlessWindow.m */; };
-		100FA3EC1D51DC6C000F1C1C /* powermgr.py in Resources */ = {isa = PBXBuildFile; fileRef = 100FA3EB1D51DC6C000F1C1C /* powermgr.py */; };
 		10DA31C31D92963A00969112 /* se.gu.it.LoginLog.login.plist in Resources */ = {isa = PBXBuildFile; fileRef = 10DA31C21D92963A00969112 /* se.gu.it.LoginLog.login.plist */; };
-		347ECFA92096C77B00CC0C34 /* tasks.py in Resources */ = {isa = PBXBuildFile; fileRef = 347ECFA82096C77B00CC0C34 /* tasks.py */; };
 		3489C29E2097FD33004285D0 /* imagr_config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3489C29D2097FD32004285D0 /* imagr_config.plist */; };
 		34D1DFDD2096D41E009BAAC9 /* test_included_workflow.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD32096D41D009BAAC9 /* test_included_workflow.py */; };
 		34D1DFDE2096D41E009BAAC9 /* remote_script.sh in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFD42096D41D009BAAC9 /* remote_script.sh */; };
@@ -22,8 +20,16 @@
 		34D1DFE42096D41E009BAAC9 /* test_install_package.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFDA2096D41E009BAAC9 /* test_install_package.py */; };
 		34D1DFE52096D41E009BAAC9 /* test_ramdisk.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFDB2096D41E009BAAC9 /* test_ramdisk.py */; };
 		34D1DFE62096D41E009BAAC9 /* test_startosinstall.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D1DFDC2096D41E009BAAC9 /* test_startosinstall.py */; };
-		C06979C21AE83F3500914535 /* gurl.py in Resources */ = {isa = PBXBuildFile; fileRef = C06979C11AE83F3500914535 /* gurl.py */; };
-		C0D0AB191F8C36FC001B1CF3 /* osinstall.py in Resources */ = {isa = PBXBuildFile; fileRef = C0D0AB181F8C36FC001B1CF3 /* osinstall.py */; };
+		34D525DE20AE82860088ED8E /* gurl.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D525DC20AE82850088ED8E /* gurl.py */; };
+		34D525DF20AE82860088ED8E /* tasks.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D525DD20AE82850088ED8E /* tasks.py */; };
+		34D525E320AE82A50088ED8E /* MainController.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D525E020AE82A40088ED8E /* MainController.py */; };
+		34D525E420AE82A50088ED8E /* powermgr.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D525E120AE82A50088ED8E /* powermgr.py */; };
+		34D525E520AE82A50088ED8E /* Utils.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D525E220AE82A50088ED8E /* Utils.py */; };
+		34D525E720AE82C60088ED8E /* imagr_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 34D525E620AE82C60088ED8E /* imagr_icon.png */; };
+		34D525EA20AE82D70088ED8E /* Installer.icns in Resources */ = {isa = PBXBuildFile; fileRef = 34D525E820AE82D70088ED8E /* Installer.icns */; };
+		34D525EB20AE82D70088ED8E /* package.icns in Resources */ = {isa = PBXBuildFile; fileRef = 34D525E920AE82D70088ED8E /* package.icns */; };
+		34D525ED20AE82EA0088ED8E /* NetBootVolume.icns in Resources */ = {isa = PBXBuildFile; fileRef = 34D525EC20AE82EA0088ED8E /* NetBootVolume.icns */; };
+		34D525EF20AE82FC0088ED8E /* osinstall.py in Resources */ = {isa = PBXBuildFile; fileRef = 34D525EE20AE82FC0088ED8E /* osinstall.py */; };
 		C0D0AB1D1F8C3D03001B1CF3 /* ptyexec in Resources */ = {isa = PBXBuildFile; fileRef = C0D0AB1C1F8C3D03001B1CF3 /* ptyexec */; };
 		FC21F1741C6235DA0039D923 /* localize.sh in Resources */ = {isa = PBXBuildFile; fileRef = FC21F1731C6235DA0039D923 /* localize.sh */; };
 		FC98DA231AD6B2DC00F90405 /* com.grahamgilbert.imagr-first-boot-pkg.plist in Resources */ = {isa = PBXBuildFile; fileRef = FC98DA1F1AD6B2DC00F90405 /* com.grahamgilbert.imagr-first-boot-pkg.plist */; };
@@ -34,12 +40,9 @@
 		FCEA80B81AD0101100DBA039 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FCEA80B71AD0101100DBA039 /* main.m */; };
 		FCEA80BB1AD0101100DBA039 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80B91AD0101100DBA039 /* Credits.rtf */; };
 		FCEA80BE1AD0101100DBA039 /* libpython2.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FCEA80BD1AD0101100DBA039 /* libpython2.7.dylib */; };
-		FCEA80C01AD0101100DBA039 /* main.py in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80BF1AD0101100DBA039 /* main.py */; };
 		FCEA80C21AD0101100DBA039 /* AppDelegate.py in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80C11AD0101100DBA039 /* AppDelegate.py */; };
 		FCEA80C51AD0101100DBA039 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80C31AD0101100DBA039 /* MainMenu.xib */; };
 		FCEA80C71AD0101100DBA039 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80C61AD0101100DBA039 /* Images.xcassets */; };
-		FCEA80CE1AD0108B00DBA039 /* NetBootVolume.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80CD1AD0108B00DBA039 /* NetBootVolume.icns */; };
-		FCEA80D01AD010D100DBA039 /* MainController.py in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80CF1AD010D100DBA039 /* MainController.py */; };
 		FCEA80D21AD0110A00DBA039 /* FoundationPlist.py in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80D11AD0110A00DBA039 /* FoundationPlist.py */; };
 		FCEA80EF1AD018E500DBA039 /* __init__.py in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80D41AD018E500DBA039 /* __init__.py */; };
 		FCEA80F01AD018E500DBA039 /* airport.py in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80D51AD018E500DBA039 /* airport.py */; };
@@ -68,19 +71,13 @@
 		FCEA81071AD018E500DBA039 /* timer_test.py in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80EC1AD018E500DBA039 /* timer_test.py */; };
 		FCEA81081AD018E500DBA039 /* wifi_network_order.py in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80ED1AD018E500DBA039 /* wifi_network_order.py */; };
 		FCEA81091AD018E500DBA039 /* wifi_network_order_test.py in Resources */ = {isa = PBXBuildFile; fileRef = FCEA80EE1AD018E500DBA039 /* wifi_network_order_test.py */; };
-		FCEA810B1AD02C9A00DBA039 /* Utils.py in Resources */ = {isa = PBXBuildFile; fileRef = FCEA810A1AD02C9A00DBA039 /* Utils.py */; };
 		FCED84651B0201B20072AC1C /* set_computer_name.sh in Resources */ = {isa = PBXBuildFile; fileRef = FCED84641B0201B20072AC1C /* set_computer_name.sh */; };
-		FCEDFD961AF289E900743302 /* imagr_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = FCEDFD951AF289E900743302 /* imagr_icon.png */; };
-		FCF6B30F1AD1D73E00311D3A /* Installer.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCF6B30D1AD1D73E00311D3A /* Installer.icns */; };
-		FCF6B3101AD1D73E00311D3A /* package.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCF6B30E1AD1D73E00311D3A /* package.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		050D9F811CE5FF1000250591 /* LLBorderlessWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LLBorderlessWindow.h; sourceTree = "<group>"; };
 		050D9F821CE5FF1000250591 /* LLBorderlessWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LLBorderlessWindow.m; sourceTree = "<group>"; };
-		100FA3EB1D51DC6C000F1C1C /* powermgr.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = powermgr.py; sourceTree = "<group>"; };
 		10DA31C21D92963A00969112 /* se.gu.it.LoginLog.login.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = se.gu.it.LoginLog.login.plist; sourceTree = "<group>"; };
-		347ECFA82096C77B00CC0C34 /* tasks.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = tasks.py; sourceTree = "<group>"; };
 		3489C29D2097FD32004285D0 /* imagr_config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = imagr_config.plist; sourceTree = "<group>"; };
 		34D1DFD32096D41D009BAAC9 /* test_included_workflow.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_included_workflow.py; sourceTree = "<group>"; };
 		34D1DFD42096D41D009BAAC9 /* remote_script.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = remote_script.sh; sourceTree = "<group>"; };
@@ -92,8 +89,16 @@
 		34D1DFDA2096D41E009BAAC9 /* test_install_package.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_install_package.py; sourceTree = "<group>"; };
 		34D1DFDB2096D41E009BAAC9 /* test_ramdisk.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_ramdisk.py; sourceTree = "<group>"; };
 		34D1DFDC2096D41E009BAAC9 /* test_startosinstall.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test_startosinstall.py; sourceTree = "<group>"; };
-		C06979C11AE83F3500914535 /* gurl.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = gurl.py; sourceTree = "<group>"; };
-		C0D0AB181F8C36FC001B1CF3 /* osinstall.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = osinstall.py; sourceTree = "<group>"; };
+		34D525DC20AE82850088ED8E /* gurl.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = gurl.py; path = Resources/gurl.py; sourceTree = "<group>"; };
+		34D525DD20AE82850088ED8E /* tasks.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = tasks.py; path = Resources/tasks.py; sourceTree = "<group>"; };
+		34D525E020AE82A40088ED8E /* MainController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = MainController.py; path = Resources/MainController.py; sourceTree = "<group>"; };
+		34D525E120AE82A50088ED8E /* powermgr.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = powermgr.py; path = Resources/powermgr.py; sourceTree = "<group>"; };
+		34D525E220AE82A50088ED8E /* Utils.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = Utils.py; path = Resources/Utils.py; sourceTree = "<group>"; };
+		34D525E620AE82C60088ED8E /* imagr_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = imagr_icon.png; path = Resources/imagr_icon.png; sourceTree = "<group>"; };
+		34D525E820AE82D70088ED8E /* Installer.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Installer.icns; path = Resources/Installer.icns; sourceTree = "<group>"; };
+		34D525E920AE82D70088ED8E /* package.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = package.icns; path = Resources/package.icns; sourceTree = "<group>"; };
+		34D525EC20AE82EA0088ED8E /* NetBootVolume.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = NetBootVolume.icns; path = Resources/NetBootVolume.icns; sourceTree = "<group>"; };
+		34D525EE20AE82FC0088ED8E /* osinstall.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = osinstall.py; path = Resources/osinstall.py; sourceTree = "<group>"; };
 		C0D0AB1C1F8C3D03001B1CF3 /* ptyexec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = ptyexec; sourceTree = "<group>"; };
 		FC21F1731C6235DA0039D923 /* localize.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = localize.sh; sourceTree = "<group>"; };
 		FC98DA1F1AD6B2DC00F90405 /* com.grahamgilbert.imagr-first-boot-pkg.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "com.grahamgilbert.imagr-first-boot-pkg.plist"; sourceTree = "<group>"; };
@@ -109,12 +114,9 @@
 		FCEA80B71AD0101100DBA039 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		FCEA80BA1AD0101100DBA039 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		FCEA80BD1AD0101100DBA039 /* libpython2.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython2.7.dylib; path = /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/config/libpython2.7.dylib; sourceTree = "<absolute>"; };
-		FCEA80BF1AD0101100DBA039 /* main.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = main.py; sourceTree = "<group>"; };
 		FCEA80C11AD0101100DBA039 /* AppDelegate.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = AppDelegate.py; sourceTree = "<group>"; };
 		FCEA80C41AD0101100DBA039 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		FCEA80C61AD0101100DBA039 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		FCEA80CD1AD0108B00DBA039 /* NetBootVolume.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = NetBootVolume.icns; sourceTree = "<group>"; };
-		FCEA80CF1AD010D100DBA039 /* MainController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = MainController.py; sourceTree = "<group>"; };
 		FCEA80D11AD0110A00DBA039 /* FoundationPlist.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FoundationPlist.py; sourceTree = "<group>"; };
 		FCEA80D41AD018E500DBA039 /* __init__.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = __init__.py; sourceTree = "<group>"; };
 		FCEA80D51AD018E500DBA039 /* airport.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = airport.py; sourceTree = "<group>"; };
@@ -143,11 +145,7 @@
 		FCEA80EC1AD018E500DBA039 /* timer_test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = timer_test.py; sourceTree = "<group>"; };
 		FCEA80ED1AD018E500DBA039 /* wifi_network_order.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = wifi_network_order.py; sourceTree = "<group>"; };
 		FCEA80EE1AD018E500DBA039 /* wifi_network_order_test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = wifi_network_order_test.py; sourceTree = "<group>"; };
-		FCEA810A1AD02C9A00DBA039 /* Utils.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = Utils.py; sourceTree = "<group>"; };
 		FCED84641B0201B20072AC1C /* set_computer_name.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = set_computer_name.sh; sourceTree = "<group>"; };
-		FCEDFD951AF289E900743302 /* imagr_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = imagr_icon.png; sourceTree = "<group>"; };
-		FCF6B30D1AD1D73E00311D3A /* Installer.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Installer.icns; sourceTree = "<group>"; };
-		FCF6B30E1AD1D73E00311D3A /* package.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = package.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -242,13 +240,14 @@
 		FCEA80B41AD0101100DBA039 /* Imagr */ = {
 			isa = PBXGroup;
 			children = (
-				347ECFA82096C77B00CC0C34 /* tasks.py */,
-				FCEA80BF1AD0101100DBA039 /* main.py */,
+				34D525EE20AE82FC0088ED8E /* osinstall.py */,
+				34D525E020AE82A40088ED8E /* MainController.py */,
+				34D525E120AE82A50088ED8E /* powermgr.py */,
+				34D525E220AE82A50088ED8E /* Utils.py */,
+				34D525DC20AE82850088ED8E /* gurl.py */,
+				34D525DD20AE82850088ED8E /* tasks.py */,
 				FCEA80C31AD0101100DBA039 /* MainMenu.xib */,
 				FCEA80C11AD0101100DBA039 /* AppDelegate.py */,
-				FCEA80CF1AD010D100DBA039 /* MainController.py */,
-				FCEA810A1AD02C9A00DBA039 /* Utils.py */,
-				100FA3EB1D51DC6C000F1C1C /* powermgr.py */,
 				FCEA80C61AD0101100DBA039 /* Images.xcassets */,
 				FCEA80BC1AD0101100DBA039 /* SharedLibraries */,
 				FCEA80B51AD0101100DBA039 /* Supporting Files */,
@@ -259,22 +258,20 @@
 		FCEA80B51AD0101100DBA039 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				34D525EC20AE82EA0088ED8E /* NetBootVolume.icns */,
+				34D525E820AE82D70088ED8E /* Installer.icns */,
+				34D525E920AE82D70088ED8E /* package.icns */,
+				34D525E620AE82C60088ED8E /* imagr_icon.png */,
 				3489C29C2097FD32004285D0 /* testdata */,
 				34D1DFD02096D3FF009BAAC9 /* tests */,
 				050D9F811CE5FF1000250591 /* LLBorderlessWindow.h */,
 				050D9F821CE5FF1000250591 /* LLBorderlessWindow.m */,
-				FCEDFD951AF289E900743302 /* imagr_icon.png */,
-				C06979C11AE83F3500914535 /* gurl.py */,
 				FC98DA1E1AD6B2DC00F90405 /* Resources */,
-				FCF6B30D1AD1D73E00311D3A /* Installer.icns */,
-				FCF6B30E1AD1D73E00311D3A /* package.icns */,
 				FCEA80D31AD018E500DBA039 /* gmacpyutil */,
 				FCEA80D11AD0110A00DBA039 /* FoundationPlist.py */,
-				FCEA80CD1AD0108B00DBA039 /* NetBootVolume.icns */,
 				FCEA80B61AD0101100DBA039 /* Info.plist */,
 				FCEA80B71AD0101100DBA039 /* main.m */,
 				FCEA80B91AD0101100DBA039 /* Credits.rtf */,
-				C0D0AB181F8C36FC001B1CF3 /* osinstall.py */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -380,51 +377,51 @@
 			buildActionMask = 2147483647;
 			files = (
 				FCED84651B0201B20072AC1C /* set_computer_name.sh in Resources */,
-				C06979C21AE83F3500914535 /* gurl.py in Resources */,
+				34D525DE20AE82860088ED8E /* gurl.py in Resources */,
 				FCEA81061AD018E500DBA039 /* timer.py in Resources */,
+				34D525E320AE82A50088ED8E /* MainController.py in Resources */,
 				FC98DA251AD6B2DC00F90405 /* LoginLog.app in Resources */,
 				FCEA80F51AD018E500DBA039 /* certs_test.py in Resources */,
 				FCEA80FA1AD018E500DBA039 /* experiments.py in Resources */,
 				34D1DFE52096D41E009BAAC9 /* test_ramdisk.py in Resources */,
-				FCEA80CE1AD0108B00DBA039 /* NetBootVolume.icns in Resources */,
 				FCEA80BB1AD0101100DBA039 /* Credits.rtf in Resources */,
 				34D1DFDF2096D41E009BAAC9 /* test_script.py in Resources */,
 				FCEA81031AD018E500DBA039 /* profiles_test.py in Resources */,
 				34D1DFE32096D41E009BAAC9 /* test_erasevolume.py in Resources */,
 				FCEA80F41AD018E500DBA039 /* certs.py in Resources */,
 				FCEA81071AD018E500DBA039 /* timer_test.py in Resources */,
+				34D525DF20AE82860088ED8E /* tasks.py in Resources */,
 				FCEA80FF1AD018E500DBA039 /* gmacpyutil_test.py in Resources */,
 				FCEA81011AD018E500DBA039 /* macdisk_test.py in Resources */,
 				FCEA81091AD018E500DBA039 /* wifi_network_order_test.py in Resources */,
 				FCEA80C71AD0101100DBA039 /* Images.xcassets in Resources */,
+				34D525E720AE82C60088ED8E /* imagr_icon.png in Resources */,
 				FC98DA231AD6B2DC00F90405 /* com.grahamgilbert.imagr-first-boot-pkg.plist in Resources */,
 				FCEA80F31AD018E500DBA039 /* applescript_test.py in Resources */,
 				FCEA80FB1AD018E500DBA039 /* experiments_test.py in Resources */,
+				34D525ED20AE82EA0088ED8E /* NetBootVolume.icns in Resources */,
 				FCEA81051AD018E500DBA039 /* systemconfig_test.py in Resources */,
-				FCEA80D01AD010D100DBA039 /* MainController.py in Resources */,
 				FCEA80EF1AD018E500DBA039 /* __init__.py in Resources */,
 				34D1DFE02096D41E009BAAC9 /* test_image.py in Resources */,
 				FC98DA261AD6B2DC00F90405 /* se.gu.it.LoginLog.plist in Resources */,
 				34D1DFE22096D41E009BAAC9 /* fixtures.py in Resources */,
 				FCEA80D21AD0110A00DBA039 /* FoundationPlist.py in Resources */,
+				34D525E420AE82A50088ED8E /* powermgr.py in Resources */,
 				34D1DFDE2096D41E009BAAC9 /* remote_script.sh in Resources */,
 				34D1DFDD2096D41E009BAAC9 /* test_included_workflow.py in Resources */,
 				FCEA81081AD018E500DBA039 /* wifi_network_order.py in Resources */,
 				FCEA80C21AD0101100DBA039 /* AppDelegate.py in Resources */,
 				FCEA81021AD018E500DBA039 /* profiles.py in Resources */,
-				FCEDFD961AF289E900743302 /* imagr_icon.png in Resources */,
 				FCEA80F61AD018E500DBA039 /* cocoadialog.py in Resources */,
 				FCEA81041AD018E500DBA039 /* systemconfig.py in Resources */,
-				C0D0AB191F8C36FC001B1CF3 /* osinstall.py in Resources */,
-				FCEA80C01AD0101100DBA039 /* main.py in Resources */,
 				FCEA81001AD018E500DBA039 /* macdisk.py in Resources */,
-				FCF6B30F1AD1D73E00311D3A /* Installer.icns in Resources */,
 				FC98DA241AD6B2DC00F90405 /* first-boot in Resources */,
+				34D525E520AE82A50088ED8E /* Utils.py in Resources */,
 				FCEA80FD1AD018E500DBA039 /* getauth_test.py in Resources */,
+				34D525EB20AE82D70088ED8E /* package.icns in Resources */,
 				FCEA80F21AD018E500DBA039 /* applescript.py in Resources */,
 				FCEA80F11AD018E500DBA039 /* airport_test.py in Resources */,
 				34D1DFE62096D41E009BAAC9 /* test_startosinstall.py in Resources */,
-				347ECFA92096C77B00CC0C34 /* tasks.py in Resources */,
 				10DA31C31D92963A00969112 /* se.gu.it.LoginLog.login.plist in Resources */,
 				FCEA80F01AD018E500DBA039 /* airport.py in Resources */,
 				FCEA80F81AD018E500DBA039 /* ds.py in Resources */,
@@ -432,15 +429,14 @@
 				FC21F1741C6235DA0039D923 /* localize.sh in Resources */,
 				FCEA80C51AD0101100DBA039 /* MainMenu.xib in Resources */,
 				34D1DFE42096D41E009BAAC9 /* test_install_package.py in Resources */,
-				FCEA810B1AD02C9A00DBA039 /* Utils.py in Resources */,
 				FCEA80F71AD018E500DBA039 /* defaults.py in Resources */,
 				C0D0AB1D1F8C3D03001B1CF3 /* ptyexec in Resources */,
+				34D525EF20AE82FC0088ED8E /* osinstall.py in Resources */,
 				FCEA80F91AD018E500DBA039 /* ds_test.py in Resources */,
-				100FA3EC1D51DC6C000F1C1C /* powermgr.py in Resources */,
 				FCEA80FC1AD018E500DBA039 /* getauth.py in Resources */,
 				34D1DFE12096D41E009BAAC9 /* test_partition.py in Resources */,
-				FCF6B3101AD1D73E00311D3A /* package.icns in Resources */,
 				3489C29E2097FD33004285D0 /* imagr_config.plist in Resources */,
+				34D525EA20AE82D70088ED8E /* Installer.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

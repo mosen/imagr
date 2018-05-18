@@ -9,7 +9,7 @@
 
 import hashlib
 import os
-import FoundationPlist
+import Imagr.FoundationPlist
 import plistlib
 import shutil
 import urllib
@@ -33,7 +33,7 @@ import random
 import macdisk
 import objc
 
-from gurl import Gurl
+from Imagr.gurl import Gurl
 
 
 class GurlError(Exception):
@@ -393,10 +393,10 @@ def get_preference(key):  # type: (str) -> object
         if not os.path.exists(plist_path):
             continue
         try:
-            plist = FoundationPlist.readPlist(plist_path)
+            plist = Imagr.FoundationPlist.readPlist(plist_path)
             if key in plist:
                 return plist[key]
-        except FoundationPlist.NSPropertyListSerializationException:
+        except Imagr.FoundationPlist.NSPropertyListSerializationException:
             continue
 
     return None
@@ -503,7 +503,7 @@ def bringToFront(bundleID):
 def launchApp(app_path):
     # Get the binary path so we can launch it using a threaded subprocess
     try:
-        app_plist = FoundationPlist.readPlist(os.path.join(app_path, 'Contents', 'Info.plist'))
+        app_plist = Imagr.FoundationPlist.readPlist(os.path.join(app_path, 'Contents', 'Info.plist'))
         binary = app_plist['CFBundleExecutable']
     except:
         NSLog("Failed to get app binary location, cannot launch.")
