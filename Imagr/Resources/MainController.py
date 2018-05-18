@@ -7,27 +7,21 @@
 #  Copyright (c) 2015 Graham Gilbert. All rights reserved.
 #
 
-import objc
-import FoundationPlist
+import Imagr.FoundationPlist
 import os
-from SystemConfiguration import *
-from Foundation import *
 from AppKit import *
-from Cocoa import *
 from Quartz.CoreGraphics import *
 import random
 import subprocess
-import sys
 import macdisk
-import urllib2
-import Utils
+import Imagr.Resources.Utils
 import PyObjCTools
 import tempfile
 import shutil
 import Quartz
 import time
-import powermgr
-import osinstall
+import Imagr.Resources.powermgr
+import Imagr.Resources.osinstall
 
 class MainController(NSObject):
 
@@ -130,7 +124,7 @@ class MainController(NSObject):
             errorText = "Unknown error"
 
         # Send a report to the URL if it's configured
-        Utils.sendReport('error', errorText)
+        Imagr.Resources.Utils.sendReport('error', errorText)
 
         self.alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
             NSLocalizedString(errorText, None),
@@ -171,7 +165,7 @@ class MainController(NSObject):
         NSThread.detachNewThreadSelector_toTarget_withObject_(self.loadData, self, None)
 
     def backgroundWindowSetting(self):
-        return Utils.getPlistData(u"background_window") or u"auto"
+        return Imagr.Resources.Utils.getPlistData(u"background_window") or u"auto"
 
     def showBackgroundWindow(self):
         # Create a background window that covers the whole screen.
@@ -209,7 +203,7 @@ class MainController(NSObject):
 
         if not urlString.endswith(u"?"):
             try:
-                verplist = FoundationPlist.readPlist("/System/Library/CoreServices/SystemVersion.plist")
+                verplist = Imagr.FoundationPlist.readPlist("/System/Library/CoreServices/SystemVersion.plist")
                 osver = verplist[u"ProductUserVisibleVersion"]
                 osbuild = verplist[u"ProductBuildVersion"]
                 size = NSScreen.mainScreen().frame().size
@@ -266,7 +260,7 @@ class MainController(NSObject):
         return volume_list
 
     def reloadVolumes(self):
-        self.volumes = Utils.mountedVolumes()
+        self.volumes = Imagr.Resources.Utils.mountedVolumes()
         self.chooseTargetDropDown.removeAllItems()
         volume_list = self.validTargetVolumes()
         self.chooseTargetDropDown.addItemsWithTitles_(volume_list)
@@ -328,15 +322,15 @@ class MainController(NSObject):
     def loadData(self):
         pool = NSAutoreleasePool.alloc().init()
         self.buildUtilitiesMenu()
-        self.volumes = Utils.mountedVolumes()
-        theURL = Utils.getServerURL()
+        self.volumes = Imagr.Resources.Utils.mountedVolumes()
+        theURL = Imagr.Resources.Utils.getServerURL()
 
         if theURL:
             plistData = None
             tries = 0
             while (not plistData) and (tries < 3):
                 tries += 1
-                (plistData, error) = Utils.downloadFile(
+                (plistData, error) = Imagr.Resources.Utils.downloadFile(
                     theURL, username=self.authenticatedUsername, password=self.authenticatedPassword)
                 if error:
                     try:
@@ -354,13 +348,13 @@ class MainController(NSObject):
                         elif error.reason[0] < 0:
                             NSLog("Failed to load configuration plist: %@", repr(error.reason))
                             # Possibly ssl error due to a bad clock, try setting the time.
-                            Utils.setDate()
+                            Imagr.Resources.Utils.setDate()
                     except AttributeError, IndexError:
                         pass
 
             if plistData:
                 try:
-                    converted_plist = FoundationPlist.readPlistFromString(plistData)
+                    converted_plist = Imagr.FoundationPlist.readPlistFromString(plistData)
                 except:
                     self.errorMessage = "Configuration plist couldn't be read."
 
@@ -408,8 +402,8 @@ class MainController(NSObject):
                 self.errorMessage = "Couldn't get configuration plist. \n %s. \n '%s'" % (error.reason, error.url)
         else:
             self.errorMessage = "Configuration URL wasn't set."
-        Utils.setup_logging()
-        Utils.sendReport('in_progress', 'Imagr is starting up...')
+        Imagr.Resources.Utils.setup_logging()
+        Imagr.Resources.Utils.sendReport('in_progress', 'Imagr is starting up...')
         self.performSelectorOnMainThread_withObject_waitUntilDone_(
             self.loadDataComplete, None, YES)
         del pool
@@ -448,7 +442,7 @@ class MainController(NSObject):
     def login_(self, sender):
         if self.passwordHash:
             password_value = self.password.stringValue()
-            if Utils.getPasswordHash(password_value) != self.passwordHash or password_value == "":
+            if Imagr.Resources.Utils.getPasswordHash(password_value) != self.passwordHash or password_value == "":
                 self.errorField.setEnabled_(sender)
                 self.errorField.setStringValue_("Incorrect password")
                 self.shakeWindow()
@@ -469,7 +463,7 @@ class MainController(NSObject):
 
         # Prefer to use the built in Startup disk pane
         if os.path.exists("/Applications/Utilities/Startup Disk.app"):
-            Utils.launchApp("/Applications/Utilities/Startup Disk.app")
+            Imagr.Resources.Utils.launchApp("/Applications/Utilities/Startup Disk.app")
         else:
             self.restartAction = 'restart'
             # This stops the console being spammed with: unlockFocus called too many times. Called on <NSButton
@@ -531,7 +525,7 @@ class MainController(NSObject):
         if returncode == NSAlertDefaultReturn:
             self.setStartupDisk_(None)
         else:
-            Utils.launchApp('/Applications/Utilities/Disk Utility.app')
+            Imagr.Resources.Utils.launchApp('/Applications/Utilities/Disk Utility.app')
             alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
                 NSLocalizedString(u"Rescan for volumes", None),
                 NSLocalizedString(u"Rescan", None),
@@ -679,7 +673,7 @@ class MainController(NSObject):
 
     def workflowOnThreadPrep(self):
         self.disableWorkflowViewControls()
-        Utils.sendReport('in_progress', 'Preparing to run workflow %s...' % self.selectedWorkflow['name'])
+        Imagr.Resources.Utils.sendReport('in_progress', 'Preparing to run workflow %s...' % self.selectedWorkflow['name'])
         self.imagingLabel.setStringValue_("Preparing to run workflow...")
         self.imagingProgressDetail.setStringValue_('')
         self.contractImagingProgressPanel()
@@ -784,8 +778,8 @@ class MainController(NSObject):
             self.targetVolume.mountpoint, 'usr/local/first-boot/')
         if not os.path.exists(packages_dir):
             os.makedirs(packages_dir)
-        Utils.copyFirstBoot(self.targetVolume.mountpoint,
-                            self.waitForNetwork, self.firstBootReboot)
+        Imagr.Resources.Utils.copyFirstBoot(self.targetVolume.mountpoint,
+                                            self.waitForNetwork, self.firstBootReboot)
 
     def processWorkflowOnThread(self, sender):
         '''Process the selected workflow'''
@@ -819,7 +813,7 @@ class MainController(NSObject):
         # Disable autorun so users are able to select additional workflows to run.
         self.autorunWorkflow = None
 
-        Utils.sendReport('success', 'Finished running %s.' % self.selectedWorkflow['name'])
+        Imagr.Resources.Utils.sendReport('success', 'Finished running %s.' % self.selectedWorkflow['name'])
 
         # Bless the target if we need to
         if self.blessTarget == True:
@@ -847,7 +841,7 @@ class MainController(NSObject):
             self.counter = self.counter + 1.0
             # Restore image
             if item.get('type') == 'image' and item.get('url'):
-                Utils.sendReport('in_progress', 'Restoring DMG: %s' % item.get('url'))
+                Imagr.Resources.Utils.sendReport('in_progress', 'Restoring DMG: %s' % item.get('url'))
                 self.Clone(
                     item.get('url'),
                     self.targetVolume,
@@ -856,45 +850,45 @@ class MainController(NSObject):
                 )
             # startosinstall
             elif item.get('type') == 'startosinstall':
-                Utils.sendReport('in_progress', 'starting macOS install: %s' % item.get('url'))
+                Imagr.Resources.Utils.sendReport('in_progress', 'starting macOS install: %s' % item.get('url'))
                 self.startOSinstall(item, ramdisk=item.get('ramdisk', False))
             # Download and install package
             elif item.get('type') == 'package' and not item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Downloading and installing package(s): %s' % item.get('url'))
+                Imagr.Resources.Utils.sendReport('in_progress', 'Downloading and installing package(s): %s' % item.get('url'))
                 self.downloadAndInstallPackages(item)
             # Download and copy package
             elif item.get('type') == 'package' and item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Downloading and installing first boot package(s): %s' % item.get('url'))
+                Imagr.Resources.Utils.sendReport('in_progress', 'Downloading and installing first boot package(s): %s' % item.get('url'))
                 self.downloadAndCopyPackage(item, self.counter)
                 self.first_boot_items = True
             # Copy first boot script
             elif item.get('type') == 'script' and item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Copying first boot script %s' % str(self.counter))
+                Imagr.Resources.Utils.sendReport('in_progress', 'Copying first boot script %s' % str(self.counter))
                 if item.get('url'):
                     if item.get('additional_headers'):
-                        (data, error) = Utils.downloadFile(item.get('url'), item.get('additional_headers'))
+                        (data, error) = Imagr.Resources.Utils.downloadFile(item.get('url'), item.get('additional_headers'))
                         self.copyFirstBootScript(data, self.counter)
                     else:
-                        (data, error) = Utils.downloadFile(item.get('url'))
+                        (data, error) = Imagr.Resources.Utils.downloadFile(item.get('url'))
                         self.copyFirstBootScript(data, self.counter)
                 else:
                     self.copyFirstBootScript(item.get('content'), self.counter)
                 self.first_boot_items = True
             # Run script
             elif item.get('type') == 'script' and not item.get('first_boot', True):
-                Utils.sendReport('in_progress', 'Running script %s' % str(self.counter))
+                Imagr.Resources.Utils.sendReport('in_progress', 'Running script %s' % str(self.counter))
                 if item.get('url'):
                     if item.get('additional_headers'):
-                        (data, error) = Utils.downloadFile(item.get('url'), item.get('additional_headers'))
+                        (data, error) = Imagr.Resources.Utils.downloadFile(item.get('url'), item.get('additional_headers'))
                         self.runPreFirstBootScript(data, self.counter)
                     else:
-                        (data, error) = Utils.downloadFile(item.get('url'))
+                        (data, error) = Imagr.Resources.Utils.downloadFile(item.get('url'))
                         self.runPreFirstBootScript(data, self.counter)
                 else:
                     self.runPreFirstBootScript(item.get('content'), self.counter)
             # Partition a disk
             elif item.get('type') == 'partition':
-                Utils.sendReport('in_progress', 'Running partiton task.')
+                Imagr.Resources.Utils.sendReport('in_progress', 'Running partiton task.')
                 self.partitionTargetDisk(item.get('partitions'), item.get('map'))
                 if self.future_target == False:
                     # If a partition task is done without a new target specified, no other tasks can be parsed.
@@ -902,32 +896,32 @@ class MainController(NSObject):
                     NSLog("No target specified, reverting to workflow selection screen.")
 
             elif item.get('type') == 'included_workflow':
-                Utils.sendReport('in_progress', 'Running included workflow.')
+                Imagr.Resources.Utils.sendReport('in_progress', 'Running included workflow.')
                 self.runIncludedWorkflow(item)
 
             # Format a volume
             elif item.get('type') == 'eraseVolume':
-                Utils.sendReport('in_progress', 'Erasing volume with name %s' % item.get('name', 'Macintosh HD'))
+                Imagr.Resources.Utils.sendReport('in_progress', 'Erasing volume with name %s' % item.get('name', 'Macintosh HD'))
                 self.eraseTargetVolume(item.get('name', 'Macintosh HD'), item.get('format', 'Journaled HFS+'))
             elif item.get('type') == 'computer_name':
                 if self.computerName:
-                    Utils.sendReport('in_progress', 'Setting computer name to %s' % self.computerName)
+                    Imagr.Resources.Utils.sendReport('in_progress', 'Setting computer name to %s' % self.computerName)
                     script_dir = os.path.dirname(os.path.realpath(__file__))
                     with open(os.path.join(script_dir, 'set_computer_name.sh')) as script:
                         script=script.read()
                     self.copyFirstBootScript(script, self.counter)
                     self.first_boot_items = True
             elif item.get('type') == 'localize':
-                Utils.sendReport('in_progress', 'Localizing Mac')
+                Imagr.Resources.Utils.sendReport('in_progress', 'Localizing Mac')
                 self.copyLocalize(item)
                 self.first_boot_items = True
 
             # Workflow specific restart action
             elif item.get('type') == 'restart_action':
-                Utils.sendReport('in_progress', 'Setting restart_action to %s' % item.get('action'))
+                Imagr.Resources.Utils.sendReport('in_progress', 'Setting restart_action to %s' % item.get('action'))
                 self.restartAction = item.get('action')
             else:
-                Utils.sendReport('error', 'Found an unknown workflow item.')
+                Imagr.Resources.Utils.sendReport('error', 'Found an unknown workflow item.')
                 self.errorMessage = "Found an unknown workflow item."
 
     def getIncludedWorkflow(self, item):
@@ -941,7 +935,7 @@ class MainController(NSObject):
             output_list = []
             if progress_method:
                 progress_method("Running script to determine included workflow...", -1, '')
-            script = Utils.replacePlaceholders(item.get('script'), self.targetVolume.mountpoint)
+            script = Imagr.Resources.Utils.replacePlaceholders(item.get('script'), self.targetVolume.mountpoint)
             script_file = tempfile.NamedTemporaryFile(delete=False)
             script_file.write(script)
             script_file.close()
@@ -955,7 +949,7 @@ class MainController(NSObject):
             os.remove(script_file.name)
             if proc.returncode != 0:
                 error_output = '\n'.join(output_list)
-                Utils.sendReport('error', 'Could not run included workflow script: %s' % error_output)
+                Imagr.Resources.Utils.sendReport('error', 'Could not run included workflow script: %s' % error_output)
                 self.errorMessage = 'Could not run included workflow script: %s' % error_output
                 return
             else:
@@ -968,7 +962,7 @@ class MainController(NSObject):
             included_workflow = item['name']
         NSLog("Log: %@", str(included_workflow))
         if included_workflow == None:
-            Utils.sendReport('error', 'No included workflow was returned.')
+            Imagr.Resources.Utils.sendReport('error', 'No included workflow was returned.')
             self.errorMessage = 'No included workflow was returned.'
             return
         return included_workflow
@@ -986,20 +980,20 @@ class MainController(NSObject):
                         self.runComponent(component)
                     return
             else:
-                Utils.sendReport('error', 'Could not find included workflow %s' % included_workflow)
+                Imagr.Resources.Utils.sendReport('error', 'Could not find included workflow %s' % included_workflow)
                 self.errorMessage = 'Could not find included workflow %s' % included_workflow
         else:
-            Utils.sendReport('error', 'No included workflow passed %s' % included_workflow)
+            Imagr.Resources.Utils.sendReport('error', 'No included workflow passed %s' % included_workflow)
             self.errorMessage = 'No included workflow passed %s' % included_workflow
 
     def getComputerName_(self, component):
         auto_run = component.get('auto', False)
-        hardware_info = Utils.get_hardware_info()
+        hardware_info = Imagr.Resources.Utils.get_hardware_info()
 
         # Try to get existing HostName
         try:
             preferencePath = os.path.join(self.targetVolume.mountpoint,'Library/Preferences/SystemConfiguration/preferences.plist')
-            preferencePlist = FoundationPlist.readPlist(preferencePath)
+            preferencePlist = Imagr.FoundationPlist.readPlist(preferencePath)
             existing_name = preferencePlist['System']['System']['HostName']
         except:
             # If we can't get the name, assign empty string for now
@@ -1068,7 +1062,7 @@ class MainController(NSObject):
                     return False
 
         is_apfs = False
-        if Utils.is_apfs(source):
+        if Imagr.Resources.Utils.is_apfs(source):
             NSLog("%@","Source is APFS")
             is_apfs = True
             # we need to restore to a whole disk here
@@ -1162,7 +1156,7 @@ class MainController(NSObject):
             ositem = item
         self.updateProgressTitle_Percent_Detail_(
             'Preparing macOS install...', -1, '')
-        success, detail = osinstall.run(
+        success, detail = Imagr.Resources.osinstall.run(
             ositem, self.targetVolume.mountpoint,
             progress_method=self.updateProgressTitle_Percent_Detail_)
         if not success:
@@ -1170,7 +1164,7 @@ class MainController(NSObject):
 
     def RAMDisk(self, source, imaging=False):
         if imaging is True:
-            apfs_image = Utils.is_apfs(source)
+            apfs_image = Imagr.Resources.Utils.is_apfs(source)
             
             if 'FilesystemType' not in self.targetVolume._attributes:
                 NSLog("Key `FilesystemType` not found in target volume: %@", str(self.targetVolume._attributes))
@@ -1197,9 +1191,9 @@ class MainController(NSObject):
         availablemem = memsize - 681574400
         NSLog(u"Available Memory for DMG is %@", str(availablemem))
         if imaging is True:
-            filesize = Utils.getDMGSize(source)[0]
+            filesize = Imagr.Resources.Utils.getDMGSize(source)[0]
         else:
-            filesize = Utils.getDMGSize(source.get('url'))[0]
+            filesize = Imagr.Resources.Utils.getDMGSize(source.get('url'))[0]
         NSLog(u"Required Memory for DMG is %@", str(filesize))
         # Formatting RAM Disk requires around 5% of the total amount of
         # bytes. Add 10% to compensate for the padding we will need.
@@ -1294,7 +1288,7 @@ class MainController(NSObject):
             error = None
             # We're going to mount the dmg
             try:
-                dmgmountpoints = Utils.mountdmg(url)
+                dmgmountpoints = Imagr.Resources.Utils.mountdmg(url)
                 dmgmountpoint = dmgmountpoints[0]
             except:
                 self.errorMessage = "Couldn't mount %s" % url
@@ -1312,7 +1306,7 @@ class MainController(NSObject):
 
             # Unmount it
             try:
-                Utils.unmountdmg(dmgmountpoint)
+                Imagr.Resources.Utils.unmountdmg(dmgmountpoint)
             except:
                 self.errorMessage = "Couldn't unmount %s" % dmgmountpoint
                 return False, self.errorMessage
@@ -1323,8 +1317,8 @@ class MainController(NSObject):
             temp_dir = tempfile.mkdtemp(dir=target)
             # Download it
             packagename = os.path.basename(url)
-            (downloaded_file, error) = Utils.downloadChunks(url, os.path.join(temp_dir,
-            packagename), additional_headers=additional_headers)
+            (downloaded_file, error) = Imagr.Resources.Utils.downloadChunks(url, os.path.join(temp_dir,
+                                                                                              packagename), additional_headers=additional_headers)
             if error:
                 self.errorMessage = "Couldn't download - %s \n %s" % (url, error)
                 return False
@@ -1345,8 +1339,8 @@ class MainController(NSObject):
             dmgpath = os.path.join(target, dmgname)
             NSLog(u"DMG Path %@", str(dmgpath))
             while not os.path.isfile(dmgpath):
-                (dmg, error) = Utils.downloadChunks(url, dmgpath, resume=True,
-                                                    progress_method=self.updateProgressTitle_Percent_Detail_)
+                (dmg, error) = Imagr.Resources.Utils.downloadChunks(url, dmgpath, resume=True,
+                                                                    progress_method=self.updateProgressTitle_Percent_Detail_)
                 if error:
                     failsleft -= 1
                     NSLog(u"DMG failed to download - Retries left: %@", str(failsleft))
@@ -1392,7 +1386,7 @@ class MainController(NSObject):
             package_name = "%03d-%s" % (number, os.path.basename(url))
             os.umask(0002)
             file = os.path.join(dest_dir, package_name)
-            (output, error) = Utils.downloadChunks(url, file, progress_method=progress_method, additional_headers=additional_headers)
+            (output, error) = Imagr.Resources.Utils.downloadChunks(url, file, progress_method=progress_method, additional_headers=additional_headers)
 
         return output, error
 
@@ -1400,7 +1394,7 @@ class MainController(NSObject):
         error = None
         # We're going to mount the dmg
         try:
-            dmgmountpoints = Utils.mountdmg(url)
+            dmgmountpoints = Imagr.Resources.Utils.mountdmg(url)
             dmgmountpoint = dmgmountpoints[0]
         except:
             self.errorMessage = "Couldn't mount %s" % url
@@ -1425,7 +1419,7 @@ class MainController(NSObject):
 
         # Unmount it
         try:
-            Utils.unmountdmg(dmgmountpoint)
+            Imagr.Resources.Utils.unmountdmg(dmgmountpoint)
         except:
             self.errorMessage = "Couldn't unmount %s" % dmgmountpoint
             return False, self.errorMessage
@@ -1507,7 +1501,7 @@ class MainController(NSObject):
         Replaces placeholders in a script and then runs it.
         """
         # replace the placeholders in the script
-        script = Utils.replacePlaceholders(script, target)
+        script = Imagr.Resources.Utils.replacePlaceholders(script, target)
         error_output = None
         output_list = []
         # Copy script content to a temporary location and make executable
@@ -1541,9 +1535,9 @@ class MainController(NSObject):
             progress_method("Copying script to %s" % dest_file, 0, '')
         # convert placeholders
         if self.computerName or self.keyboard_layout_id or self.keyboard_layout_name or self.language or self.locale or self.timezone:
-            script = Utils.replacePlaceholders(script, target, self.computerName, self.keyboard_layout_id, self.keyboard_layout_name, self.language, self.locale, self.timezone)
+            script = Imagr.Resources.Utils.replacePlaceholders(script, target, self.computerName, self.keyboard_layout_id, self.keyboard_layout_name, self.language, self.locale, self.timezone)
         else:
-            script = Utils.replacePlaceholders(script, target)
+            script = Imagr.Resources.Utils.replacePlaceholders(script, target)
         # write file
         with open(dest_file, "w") as text_file:
             text_file.write(script)
@@ -1610,7 +1604,7 @@ class MainController(NSObject):
         app_name = sender.title()
         app_path = os.path.join('/Applications/Utilities/', app_name + '.app')
         if os.path.exists(app_path):
-            Utils.launchApp(app_path)
+            Imagr.Resources.Utils.launchApp(app_path)
 
     def buildUtilitiesMenu(self):
         """

@@ -9,7 +9,7 @@
 
 import hashlib
 import os
-import FoundationPlist
+import Imagr.FoundationPlist
 import plistlib
 import shutil
 import urllib
@@ -384,14 +384,14 @@ def getPlistData(data):
     try:
         # NSLog("Trying Home Location")
         homedir = os.path.expanduser("~")
-        plist = FoundationPlist.readPlist(os.path.join(homedir, "Library", "Preferences", "com.grahamgilbert.Imagr.plist"))
+        plist = Imagr.FoundationPlist.readPlist(os.path.join(homedir, "Library", "Preferences", "com.grahamgilbert.Imagr.plist"))
         return plist[data]
     except:
         pass
     # Try the main prefs
     try:
         # NSLog("Trying System Location")
-        plist = FoundationPlist.readPlist(os.path.join("/Library", "Preferences", "com.grahamgilbert.Imagr.plist"))
+        plist = Imagr.FoundationPlist.readPlist(os.path.join("/Library", "Preferences", "com.grahamgilbert.Imagr.plist"))
         return plist[data]
     except:
         pass
@@ -399,7 +399,7 @@ def getPlistData(data):
     # Hopefully we're in a netboot set, try in /System/Installation/Packages
     try:
         # NSLog("Trying NetBoot Location")
-        plist = FoundationPlist.readPlist(os.path.join("/System", "Installation", "Packages", "com.grahamgilbert.Imagr.plist"))
+        plist = Imagr.FoundationPlist.readPlist(os.path.join("/System", "Installation", "Packages", "com.grahamgilbert.Imagr.plist"))
         return plist[data]
     except:
         pass
@@ -519,7 +519,7 @@ def bringToFront(bundleID):
 def launchApp(app_path):
     # Get the binary path so we can launch it using a threaded subprocess
     try:
-        app_plist = FoundationPlist.readPlist(os.path.join(app_path, 'Contents', 'Info.plist'))
+        app_plist = Imagr.FoundationPlist.readPlist(os.path.join(app_path, 'Contents', 'Info.plist'))
         binary = app_plist['CFBundleExecutable']
     except:
         NSLog("Failed to get app binary location, cannot launch.")
