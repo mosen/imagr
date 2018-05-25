@@ -8,7 +8,7 @@ int main(int argc, const char * argv[]) {
         NSBundle *mainBundle = [NSBundle mainBundle];
         NSString *resourcePath = [mainBundle resourcePath];
         NSArray *pythonPathArray = [NSArray arrayWithObjects: resourcePath, [resourcePath stringByAppendingPathComponent:@"PyObjC"], nil];
-        
+        NSLog(@"%@", [pythonPathArray componentsJoinedByString:@":"]);
         setenv("PYTHONPATH", [[pythonPathArray componentsJoinedByString:@":"] UTF8String], 1);
         
         NSArray *possibleMainExtensions = [NSArray arrayWithObjects: @"py", @"pyc", @"pyo", nil];
