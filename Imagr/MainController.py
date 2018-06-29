@@ -916,7 +916,7 @@ class MainController(NSObject):
                 self.eraseTargetVolume(item.get('name', 'Macintosh HD'), item.get('format', 'Journaled HFS+'))
             # Format a volume with existing format
             elif item.get('type') == 'reformat':
-                Utils.sendReport('in_progress', 'Reformatting volume with original name')
+                Utils.sendReport('in_progress', 'Reformatting volume with its original name and format')
                 self.reformatTargetVolume()
             elif item.get('type') == 'computer_name':
                 if self.computerName:
@@ -1786,7 +1786,7 @@ class MainController(NSObject):
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (eraseOut, eraseErr) = proc.communicate()
         if eraseErr:
-            NSLog("Error occured when reformatting volume: %@", eraseErr)
+            NSLog("Error occurred when reformatting volume: %@", eraseErr)
             self.errorMessage = eraseErr
         NSLog("%@", eraseOut)
 
