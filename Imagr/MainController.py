@@ -261,8 +261,9 @@ class MainController(NSObject):
         for volume in self.volumes:
             if volume.mountpoint != '/':
                 if volume.mountpoint.startswith("/Volumes/"):
-                    if volume.writable:
-                        volume_list.append(volume.mountpoint)
+                    # NOTE: macOS Mojave APFS Volumes will be shown as read-only
+                    # if volume.writable:
+                    volume_list.append(volume.mountpoint)
         return volume_list
 
     def reloadVolumes(self):

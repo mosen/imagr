@@ -22,6 +22,10 @@ class AppDelegate(NSObject):
         if NSApp.respondsToSelector_('disableRelaunchOnLogin'):
             NSApp.disableRelaunchOnLogin()
 
+    # Attempted to fix Imagr not quitting in NetBoot environment w/startosinstall.
+    def applicationShouldTerminate_(self, sender):
+        return NSTerminateNow
+
     def applicationWillTerminate_(self, notification):
         # be nice and remove our observers from NSWorkspace
         nc = NSWorkspace.sharedWorkspace().notificationCenter()
